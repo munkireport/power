@@ -29,7 +29,7 @@ $(document).on('appReady appUpdate', function(e, lang) {
 		
 		// Set statuses
 		if(data.now && data.now != "0"){
-			panel.append(' <a href="'+baseUrl+'#now" class="btn btn-danger"><span class="bigger-150">'+data.now+'</span><br>'+i18n.t('power.widget.now')+'</a>');
+			panel.append(' <a href="'+baseUrl+'#poor" class="btn btn-danger"><span class="bigger-150">'+data.now+'</span><br>'+i18n.t('power.widget.now')+'</a>');
 		}
 		if(data.service && data.service != "0"){
 			panel.append(' <a href="'+baseUrl+'#service" class="btn btn-danger"><span class="bigger-150">'+data.service+'</span><br>'+i18n.t('power.widget.service')+'</a>');
