@@ -122,10 +122,31 @@ class Power_model extends \Model
         // If data is empty, throw error
         if (! $data) {
             throw new Exception("Error Processing Power Module Request: No data found", 1);
-        } else if (substr( $data, 0, 30 ) != '<?xml version="1.0" encoding="' ) { // Else if old style text, process with old text based handler
+        }
+       
+        // Switch between old style and xml style reports
+        if (substr( $data, 0, 30 ) == '<?xml version="1.0" encoding="' ) {
+            $this->_process_xml($data);
+        } else {
+            $this->_process_legacy($data);
+        }
 
+        // Massage data into the right format for the database
+        $this->_adjust_data();
+        // print_r($this->rs);
+        $this->save();
+    }
+
+    /**
+     * Process legacy
+     * 
+     *
+     * @param Array $data Data array
+     **/
+    private function _process_legacy($data)
+    {
         // Translate network strings to db fields
-        $translate = array(
+        $translate = [
             'manufacture_date = ' => 'manufacture_date',
             'design_capacity = ' => 'design_capacity',
             'max_capacity = ' => 'max_capacity',
@@ -133,7 +154,8 @@ class Power_model extends \Model
             'current_capacity = ' => 'current_capacity',
             'cycle_count = ' => 'cycle_count',
             'temperature = ' => 'temperature',
-            'condition = ' => 'condition');
+            'condition = ' => 'condition',
+        ];
         // Reset values
         $this->manufacture_date = '';
         $this->design_capacity = 1;
@@ -157,10 +179,17 @@ class Power_model extends \Model
                     break;
                 }
             }
-        } //end foreach explode lines
+        }
+    }
 
-        } else { // Else process with new XML handler
-
+    /**
+     * Process xml
+     *
+     *
+     * @param Array $data Client data
+     **/
+    private function _process_xml($data)
+    {
         // Array of ints for nulling
         $ints =  array('standbydelay','standby','womp','halfdim','gpuswitch','sms','networkoversleep','disksleep','sleep','autopoweroffdelay','hibernatemode','autopoweroff','ttyskeepawake','displaysleep','acwake','lidwake','sleep_on_power_button','autorestart','destroyfvkeyonstandby','powernap','haltlevel','haltafter','haltremain','lessbright','sleep_count','dark_wake_count','user_wake_count','wattage','backgroundtask','applepushservicetask','userisactive','preventuseridledisplaysleep','preventsystemsleep','externalmedia','preventuseridlesystemsleep','networkclientactive','cpu_scheduler_limit','cpu_available_cpus','cpu_speed_limit','ups_percent','timeremaining','instanttimetoempty','permanentfailurestatus','packreserve','avgtimetofull','designcyclecount','avgtimetoempty','voltage','amperage','temperature','cycle_count','current_percent','current_capacity','max_percent','max_capacity','design_capacity');
 
@@ -249,26 +278,29 @@ class Power_model extends \Model
 
         // Traverse the xml with translations
         foreach ($translate as $search => $field) {
-                // If key is not empty, save it to the object
-                if (! empty($plist[$search])) {
-                        $this->$field = $plist[$search];
-                } else {
-                    // Else, check if key is an int
-                    if (in_array($field, $ints) && $plist[$search] != "0"){
-                        // Set the int to null
-                        $this->$field = null;
-                    } else if (in_array($field, $ints) && $plist[$search] == "0"){
-                        // Set the int to null
-                        $this->$field = $plist[$search];
-                    } else {
-                        // Else, null the value
-                        $this->$field = '';
-                    }
-                }
+            
+            $is_int_value = in_array($field, $ints);
+            $is_in_plist = array_key_exists($search, $plist);
+
+            if( ! $is_in_plist){
+                $this->$field = $is_int_value ? null : '';
+                continue;
+            }
+
+            if($is_int_value){
+                $this->$field = intval($plist[$search]);
+            }else{
+                $this->$field = $plist[$search];
             }
         }
+    }
 
-        // Check if no battery is inserted and adjust values
+    /**
+     * Adjust battery data
+     *
+     **/
+    private function _adjust_battery_data()
+    {
         if ( $this->condition == "No Battery" || $this->condition == "") {
             $this->manufacture_date = '1980-00-00';
             $this->design_capacity = null;
@@ -308,6 +340,16 @@ class Power_model extends \Model
 
             $this->manufacture_date = sprintf("%d-%02d-%02d", $mfgyear, $mfgmonth, $mfgday);
         }
+    }
+
+    /**
+     * Adjust data
+     **/
+    private function _adjust_data()
+    {
+        
+        // Check if no battery is inserted and adjust values
+        $this->_adjust_battery_data();
 
         // Fix sleep and make sleep_prevented_by
         $sleep_long = $this->sleep;
@@ -336,7 +378,7 @@ class Power_model extends \Model
             $cellvoltageout = array();
             foreach ($cellvoltagearray as $cell) {
                 if ($cell !== "0") {
-                       array_push($cellvoltageout, (intval($cell) / 1000));
+                        array_push($cellvoltageout, (intval($cell) / 1000));
                 }
             }
             $this->cellvoltage = implode($cellvoltageout,'v, ');
@@ -344,12 +386,12 @@ class Power_model extends \Model
 
         // Format voltage
         if ( $this->voltage != "") {
-             $this->voltage = (intval($this->voltage) / 1000);
+                $this->voltage = (intval($this->voltage) / 1000);
         }
 
         // Format amperage
         if ( $this->amperage != "") {
-             $this->amperage = (intval($this->amperage) / 1000);
+                $this->amperage = (intval($this->amperage) / 1000);
         }
 
         // Format manufacturer
@@ -365,7 +407,5 @@ class Power_model extends \Model
         $this->displaysleep = intval(strtok($this->displaysleep, ' '));
         $this->disksleep = intval(strtok($this->disksleep, ' '));
         $this->standby = intval(strtok($this->standby, ' '));
-
-        $this->save();
     }
 }
