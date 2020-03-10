@@ -1,4 +1,4 @@
-	<h2 data-i18n="nav.listings.power"></h2>
+	<h2 data-i18n="power.power"></h2>
 	
 	<div id="power-msg" data-i18n="listing.loading" class="col-lg-12 text-center"></div>
 	
