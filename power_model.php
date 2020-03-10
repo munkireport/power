@@ -123,7 +123,7 @@ class Power_model extends \Model
         if (! $data) {
             throw new Exception("Error Processing Power Module Request: No data found", 1);
         }
-       
+
         // Switch between old style and xml style reports
         if (substr( $data, 0, 30 ) == '<?xml version="1.0" encoding="' ) {
             $this->_process_xml($data);
@@ -132,8 +132,7 @@ class Power_model extends \Model
         }
 
         // Massage data into the right format for the database
-        $this->_adjust_data();
-        // print_r($this->rs);
+        $this->_adjust_battery_data();
         $this->save();
     }
 
@@ -156,6 +155,7 @@ class Power_model extends \Model
             'temperature = ' => 'temperature',
             'condition = ' => 'condition',
         ];
+
         // Reset values
         $this->manufacture_date = '';
         $this->design_capacity = 1;
@@ -166,6 +166,8 @@ class Power_model extends \Model
         $this->cycle_count = 0;
         $this->temperature = 0;
         $this->condition = '';
+        $this->timestamp = 0;
+
         // Parse data
         foreach(explode("\n", $data) as $line) {
             // Translate standard entries
@@ -179,9 +181,8 @@ class Power_model extends \Model
                     break;
                 }
             }
-        }
+        } // End foreach explode lines
     }
-
     /**
      * Process xml
      *
@@ -190,9 +191,6 @@ class Power_model extends \Model
      **/
     private function _process_xml($data)
     {
-        // Array of ints for nulling
-        $ints =  array('standbydelay','standby','womp','halfdim','gpuswitch','sms','networkoversleep','disksleep','sleep','autopoweroffdelay','hibernatemode','autopoweroff','ttyskeepawake','displaysleep','acwake','lidwake','sleep_on_power_button','autorestart','destroyfvkeyonstandby','powernap','haltlevel','haltafter','haltremain','lessbright','sleep_count','dark_wake_count','user_wake_count','wattage','backgroundtask','applepushservicetask','userisactive','preventuseridledisplaysleep','preventsystemsleep','externalmedia','preventuseridlesystemsleep','networkclientactive','cpu_scheduler_limit','cpu_available_cpus','cpu_speed_limit','ups_percent','timeremaining','instanttimetoempty','permanentfailurestatus','packreserve','avgtimetofull','designcyclecount','avgtimetoempty','voltage','amperage','temperature','cycle_count','current_percent','current_capacity','max_percent','max_capacity','design_capacity');
-
         // Process incoming powerinfo.xml
         $parser = new CFPropertyList();
         $parser->parse($data, CFPropertyList::FORMAT_XML);
@@ -273,24 +271,31 @@ class Power_model extends \Model
             'FullyCharged' => 'fullycharged',
             'IsCharging' => 'ischarging',
             'DesignCycleCount9C' => 'designcyclecount',
-            'AvgTimeToEmpty' => 'avgtimetoempty'
+            'AvgTimeToEmpty' => 'avgtimetoempty',
+            'sleep_prevented_by' => 'sleep_prevented_by'
         );
+
+        // Array of strings
+        $strings =  array('manufacture_date', 'condition', 'hibernatefile', 'adapter_id', 'family_code', 'adapter_serial_number', 'combined_sys_load', 'user_sys_load', 'thermal_level', 'battery_level', 'ups_name', 'active_profile', 'ups_charging_status', 'externalconnected', 'cellvoltage', 'manufacturer', 'batteryserialnumber', 'fullycharged', 'ischarging','sleep_prevented_by','schedule');
 
         // Traverse the xml with translations
         foreach ($translate as $search => $field) {
-            
-            $is_int_value = in_array($field, $ints);
-            $is_in_plist = array_key_exists($search, $plist);
 
-            if( ! $is_in_plist){
-                $this->$field = $is_int_value ? null : '';
-                continue;
-            }
+            // If key does not exist in $plist, null it
+            if ( ! array_key_exists($search, $plist)) {
+                $this->$field = null;
 
-            if($is_int_value){
-                $this->$field = intval($plist[$search]);
-            }else{
+            // Else if is not a string and is numeric, save the value
+            } else if ( ! in_array($field, $strings) && is_numeric($plist[$search])) {                 
                 $this->$field = $plist[$search];
+
+            // Else if a string, save the value
+            } else if ( in_array($field, $strings)) {
+                $this->$field = $plist[$search];
+
+            // Else null the field
+            } else {
+                $this->$field = null;
             }
         }
     }
@@ -301,6 +306,7 @@ class Power_model extends \Model
      **/
     private function _adjust_battery_data()
     {
+        // Check if no battery is inserted and adjust values
         if ( $this->condition == "No Battery" || $this->condition == "") {
             $this->manufacture_date = '1980-00-00';
             $this->design_capacity = null;
@@ -340,72 +346,11 @@ class Power_model extends \Model
 
             $this->manufacture_date = sprintf("%d-%02d-%02d", $mfgyear, $mfgmonth, $mfgday);
         }
-    }
 
-    /**
-     * Adjust data
-     **/
-    private function _adjust_data()
-    {
-        
-        // Check if no battery is inserted and adjust values
-        $this->_adjust_battery_data();
-
-        // Fix sleep and make sleep_prevented_by
-        $sleep_long = $this->sleep;
-
-        if (strpos($sleep_long, '(') !== false) {
-            preg_match('/\((.*?)\)/s', $sleep_long, $sleep_array);
-            $this->sleep = explode(" (", $sleep_long)[0];
-            $this->sleep_prevented_by = preg_replace("/[^A-Za-z0-9 ]/", '',(implode(", ", array_unique(explode(", ", str_replace("sleep prevented by ", "", $sleep_array[1]))))));
-        } else {
-            $this->sleep = preg_replace("/[^0-9 ]/", '', $sleep_long);
-            $this->sleep_prevented_by = "";
-        }
-
-        // Correct empty UPS percentage
-        if (trim($this->ups_percent) === '') {
-            $this->ups_percent = null;
-        }
-
-        // Remove single quotes from active_profile
-        $this->active_profile = str_replace("'", "", $this->active_profile);
-
-        // Format cell voltages
-        if ( $this->cellvoltage != "") {
-            $this->cellvoltage = str_replace(array('(',')'), array('',''), $this->cellvoltage);
-            $cellvoltagearray = explode(',', $this->cellvoltage);
-            $cellvoltageout = array();
-            foreach ($cellvoltagearray as $cell) {
-                if ($cell !== "0") {
-                        array_push($cellvoltageout, (intval($cell) / 1000));
-                }
-            }
-            $this->cellvoltage = implode($cellvoltageout,'v, ');
-        }
-
-        // Format voltage
-        if ( $this->voltage != "") {
-                $this->voltage = (intval($this->voltage) / 1000);
-        }
-
-        // Format amperage
-        if ( $this->amperage != "") {
-                $this->amperage = (intval($this->amperage) / 1000);
-        }
-
-        // Format manufacturer
-        $this->manufacturer = str_replace('"', '', $this->manufacturer);
+        // Timestamp added by the server
+        $this->timestamp = time();
 
         // Fix condition
         $this->condition = str_replace(array('ServiceBattery','ReplaceSoon','ReplaceNow'),array('Service Battery','Replace Soon','Replace Now'), $this->condition);
-
-        // Format batteryserialnumber
-        $this->batteryserialnumber = str_replace('"', '', $this->batteryserialnumber);
-
-        // Clean pmset -g values
-        $this->displaysleep = intval(strtok($this->displaysleep, ' '));
-        $this->disksleep = intval(strtok($this->disksleep, ' '));
-        $this->standby = intval(strtok($this->standby, ' '));
     }
 }

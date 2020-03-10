@@ -4,7 +4,6 @@
 	
 	<div id="power-view" class="row hide">
 		<div class="col-md-4">
-			<table>
 			<table class="table table-striped">
 				<tr>
 					<th data-i18n="power.active_profile"></th>
@@ -184,35 +183,6 @@
 					<td id="power-sleep_prevented_by"></td>
 				</tr>
 			</table>
-                <div id="power-ups" class="row hide">
-                <h2 data-i18n="power.ups_status"></h2>
-			<table class="table table-striped">
-				<tr>
-					<th data-i18n="power.ups_name"></th>
-					<td id="power-ups_name"></td>
-				</tr>
-				<tr>
-					<th data-i18n="power.ups_percent"></th>
-					<td id="power-ups_percent"></td>
-				</tr>
-				<tr>
-					<th data-i18n="power.ups_charging_status"></th>
-					<td id="power-ups_charging_status"></td>
-				</tr>
-				<tr>
-					<th data-i18n="power.haltlevel"></th>
-					<td id="power-haltlevel"></td>
-				</tr>
-				<tr>
-					<th data-i18n="power.haltafter"></th>
-					<td id="power-haltafter"></td>
-				</tr>
-				<tr>
-					<th data-i18n="power.haltremain"></th>
-					<td id="power-haltremain"></td>
-				</tr>
-			</table>
-         </div>
 	</div>
 </div>
 <script>
@@ -301,7 +271,7 @@ $(document).on('appReady', function(e, lang) {
 			} else if(data.standbydelay == "0") {
 				 $('#power-standbydelay').text(i18n.t('power.never'));
 			} else {
-				 $('#power-standbydelay').html('<span title="'+data.standbydelay+' '+i18n.t('power.seconds')+'">'+moment.duration(+data.standbydelay, "seconds").humanize()+'</span>');
+				 $('#power-standbydelay').html($('<span>').attr('title',data.standbydelay+' '+i18n.t('power.seconds')).text(moment.duration(+data.standbydelay, "seconds").humanize()));
 			}  
                                       
 			if(data.displaysleep == null) {
@@ -309,15 +279,16 @@ $(document).on('appReady', function(e, lang) {
 			} else if(data.displaysleep == "0") {
 				 $('#power-displaysleep').text(i18n.t('power.never'));
 			} else {
-				 $('#power-displaysleep').html('<span title="'+data.displaysleep+' '+i18n.t('power.minutes')+'">'+moment.duration(+data.displaysleep, "minutes").humanize()+'</span>');
+				 $('#power-displaysleep').html($('<span>').attr('title',data.displaysleep+' '+i18n.t('power.minutes')).text(moment.duration(+data.displaysleep, "minutes").humanize()));
 			}  
+                
                                                   
 			if(data.disksleep == null) {
 				 $('#power-disksleep').text('');
 			} else if(data.disksleep == "0") {
 				 $('#power-disksleep').text(i18n.t('power.never'));
 			} else {
-				 $('#power-disksleep').html('<span title="'+data.disksleep+' '+i18n.t('power.minutes')+'">'+moment.duration(+data.disksleep, "minutes").humanize()+'</span>');
+				 $('#power-disksleep').html($('<span>').attr('title',data.disksleep+' '+i18n.t('power.minutes')).text(moment.duration(+data.disksleep, "minutes").humanize()));
 			}  
                        
 			if(data.autopoweroffdelay == null) {
@@ -325,7 +296,7 @@ $(document).on('appReady', function(e, lang) {
 			} else if(data.autopoweroffdelay == "0") {
 				 $('#power-autopoweroffdelay').text(i18n.t('power.never'));
 			} else {
-				 $('#power-autopoweroffdelay').html('<span title="'+data.autopoweroffdelay+' '+i18n.t('power.minutes')+'">'+moment.duration(+data.autopoweroffdelay, "minutes").humanize()+'</span>');
+				 $('#power-autopoweroffdelay').html($('<span>').attr('title',data.autopoweroffdelay+' '+i18n.t('power.minutes')).text(moment.duration(+data.autopoweroffdelay, "minutes").humanize()));
 			}  
                
 			if(data.sleep == null) {
@@ -333,7 +304,7 @@ $(document).on('appReady', function(e, lang) {
 			} else if(data.sleep == "0") {
 				 $('#power-sleep').text(i18n.t('power.never'));
 			} else {
-				 $('#power-sleep').html('<span title="'+data.sleep+' '+i18n.t('power.minutes')+'">'+moment.duration(+data.sleep, "minutes").humanize()+'</span>');
+				 $('#power-sleep').html($('<span>').attr('title',data.sleep+' '+i18n.t('power.minutes')).text(moment.duration(+data.sleep, "minutes").humanize()));
 			} 
               
 			if(data.gpuswitch == "2") {
@@ -513,50 +484,6 @@ $(document).on('appReady', function(e, lang) {
 			} else{
 				 $('#power-womp').text("");
 			}
-            
-            // Unhide and fill out UPS if UPS is present
-            if (data.ups_percent != "" && (data.ups_percent)) {
-	        	$('#power-ups').removeClass('hide'); // unhide UPS table
-	        	$('#power-ups_percent').text(data.ups_percent+'%');
-	        	$('#power-haltlevel').text(data.haltlevel+'%');
-	        	//$('#power-haltafter').text(data.haltafter);
-	        	//$('#power-haltremain').text(data.haltremain);
-	        	//$('#power-ups_charging_status').text(data.ups_charging_status);
-	        	$('#power-ups_name').text(data.ups_name);
-                
-			if(data.ups_charging_status === "true " ) {
-				 $('#power-ups_charging_status').text(i18n.t('power.charging'));
-			} else if(data.ups_charging_status === "false") {
-				 $('#power-ups_charging_status').text(i18n.t('power.discharging'));
-			} else{
-				 $('#power-ups_charging_status').text(data.ups_charging_status);
-			} 
-                
-			if(data.haltafter == null) {
-				 $('#power-haltafter').text('');
-			} else if(data.haltafter == "1") {
-				 $('#power-haltafter').text(data.haltafter+' '+i18n.t('power.minute'));
-			} else{
-				 $('#power-haltafter').text(data.haltafter+' '+i18n.t('power.minutes'));
-			}
-                
-			if(data.haltremain == null) {
-				 $('#power-haltremain').text('');
-			} else if(data.haltremain == "1") {
-				 $('#power-haltremain').text(data.haltremain+' '+i18n.t('power.minute'));
-			} else{
-				 $('#power-haltremain').text(data.haltremain+' '+i18n.t('power.minutes'));
-			}
-                
-            } else {
-	        	$('#power-ups_percent').html('');  
-	        	$('#power-haltlevel').html('');
-	        	$('#power-haltafter').html('');
-	        	$('#power-haltremain').html('');
-	        	$('#power-ups_charging_status').text('');
-	        	$('#power-ups_name').text("");
-
-            }
 		}
 	});
 });
