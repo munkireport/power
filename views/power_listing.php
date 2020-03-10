@@ -94,167 +94,167 @@
             columnDefs: columnDefs,
 		    createdRow: function( nRow, aData, iDataIndex ) {
 	        	// Update name in first column to link
-	        	var name=$('td:eq(0)', nRow).html();
+	        	var name=$('td:eq(0)', nRow).text();
 	        	if(name == ''){name = "No Name"};
-	        	var sn=$('td:eq(1)', nRow).html();
+	        	var sn=$('td:eq(1)', nRow).text();
 	        	var link = mr.getClientDetailLink(name, sn, '#tab_power-tab');
 	        	$('td:eq(0)', nRow).html(link);
 
 	        	// active power profile
-	        	var columnvar=$('td:eq(3)', nRow).html();
+	        	var columnvar=$('td:eq(3)', nRow).text();
                 if(columnvar == "AC Power") {
-                     $('td:eq(3)', nRow).html(i18n.t('power.ac_power'));
+                     $('td:eq(3)', nRow).text(i18n.t('power.ac_power'));
                 } else if(columnvar == "Battery Power") {
-                     $('td:eq(3)', nRow).html(i18n.t('power.battery_power'));
+                     $('td:eq(3)', nRow).text(i18n.t('power.battery_power'));
                 } else{
-                     $('td:eq(3)', nRow).html(columnvar);
+                     $('td:eq(3)', nRow).text(columnvar);
                 }
 
 	        	// sleep
-	        	var columnvar=$('td:eq(4)', nRow).html();
+	        	var columnvar=$('td:eq(4)', nRow).text();
                 if(columnvar == "") {
-                     $('td:eq(4)', nRow).html('');
+                     $('td:eq(4)', nRow).text('');
                 } else if(columnvar == "1") {
-                     $('td:eq(4)', nRow).html(columnvar+' '+i18n.t('power.minute'));
+                     $('td:eq(4)', nRow).text(columnvar+' '+i18n.t('power.minute'));
                 } else if(columnvar == "0") {
-                     $('td:eq(4)', nRow).html(i18n.t('power.never'));
+                     $('td:eq(4)', nRow).text(i18n.t('power.never'));
                 } else{
-                     $('td:eq(4)', nRow).html(columnvar+' '+i18n.t('power.minutes'));
+                     $('td:eq(4)', nRow).text(columnvar+' '+i18n.t('power.minutes'));
                 }
 
 	        	// disk sleep
-	        	var columnvar=$('td:eq(5)', nRow).html();
+	        	var columnvar=$('td:eq(5)', nRow).text();
                 if(columnvar == "") {
-                     $('td:eq(5)', nRow).html('');
+                     $('td:eq(5)', nRow).text('');
                 } else if(columnvar == "1") {
-                     $('td:eq(5)', nRow).html(columnvar+' '+i18n.t('power.minute'));
+                     $('td:eq(5)', nRow).text(columnvar+' '+i18n.t('power.minute'));
                 } else if(columnvar == "0") {
-                     $('td:eq(5)', nRow).html(i18n.t('power.never'));
+                     $('td:eq(5)', nRow).text(i18n.t('power.never'));
                 } else{
-                     $('td:eq(5)', nRow).html(columnvar+' '+i18n.t('power.minutes'));
+                     $('td:eq(5)', nRow).text(columnvar+' '+i18n.t('power.minutes'));
                 }
 
 	        	// display sleep
-	        	var columnvar=$('td:eq(6)', nRow).html();
+	        	var columnvar=$('td:eq(6)', nRow).text();
                 if(columnvar == "") {
-                     $('td:eq(6)', nRow).html('');
+                     $('td:eq(6)', nRow).text('');
                 } else if(columnvar == "1") {
-                     $('td:eq(6)', nRow).html(columnvar+' '+i18n.t('power.minute'));
+                     $('td:eq(6)', nRow).text(columnvar+' '+i18n.t('power.minute'));
                 } else if(columnvar == "0") {
-                     $('td:eq(6)', nRow).html(i18n.t('power.never'));
+                     $('td:eq(6)', nRow).text(i18n.t('power.never'));
                 } else{
-                     $('td:eq(6)', nRow).html(columnvar+' '+i18n.t('power.minutes'));
+                     $('td:eq(6)', nRow).text(columnvar+' '+i18n.t('power.minutes'));
                 }
 
 	        	// powernap
-	        	var columnvar=$('td:eq(7)', nRow).html();
+	        	var columnvar=$('td:eq(7)', nRow).text();
 	        	columnvar = columnvar == '1' ? i18n.t('yes') :
 	        	(columnvar == '0' ? i18n.t('no') : '')
-	        	$('td:eq(7)', nRow).html(columnvar)
+	        	$('td:eq(7)', nRow).text(columnvar)
 
                 // hibernate mode
-                var columnvar=$('td:eq(8)', nRow).html();
+                var columnvar=$('td:eq(8)', nRow).text();
                 if(columnvar == "25" || columnvar == "1") {
-				 $('td:eq(8)', nRow).html(i18n.t('power.hibernate')+' ('+columnvar+')');
+				 $('td:eq(8)', nRow).text(i18n.t('power.hibernate')+' ('+columnvar+')');
                 } else if(columnvar == "3") {
-                     $('td:eq(8)', nRow).html(i18n.t('power.safe_sleep')+' ('+columnvar+')');
+                     $('td:eq(8)', nRow).text(i18n.t('power.safe_sleep')+' ('+columnvar+')');
                 } else if(columnvar == "0") {
-                     $('td:eq(8)', nRow).html(i18n.t('power.sleep')+' ('+columnvar+')');
+                     $('td:eq(8)', nRow).text(i18n.t('power.sleep')+' ('+columnvar+')');
                 } else if(columnvar == "") {
-                     $('td:eq(8)', nRow).html('');
+                     $('td:eq(8)', nRow).text('');
                 } else{
                      $('td:eq(8)', nRow).columnvar;
                 }
 
                 // standby
-	        	var columnvar=$('td:eq(9)', nRow).html();
+	        	var columnvar=$('td:eq(9)', nRow).text();
 	        	columnvar = columnvar == '1' ? i18n.t('yes') :
 	        	(columnvar == '0' ? i18n.t('no') : '')
-	        	$('td:eq(9)', nRow).html(columnvar)
+	        	$('td:eq(9)', nRow).text(columnvar)
 
 	        	// standby delay
-	        	var columnvar=$('td:eq(10)', nRow).html();
+	        	var columnvar=$('td:eq(10)', nRow).text();
                 if(columnvar == "") {
-                     $('td:eq(10)', nRow).html('');
+                     $('td:eq(10)', nRow).text('');
                 } else if(columnvar == "1") {
-                     $('td:eq(10)', nRow).html(columnvar+' '+i18n.t('power.second'));
+                     $('td:eq(10)', nRow).text(columnvar+' '+i18n.t('power.second'));
                 } else if(columnvar == "0") {
-                     $('td:eq(10)', nRow).html(i18n.t('power.never'));
+                     $('td:eq(10)', nRow).text(i18n.t('power.never'));
                 } else{
-                     $('td:eq(10)', nRow).html(columnvar+' '+i18n.t('power.seconds'));
+                     $('td:eq(10)', nRow).text(columnvar+' '+i18n.t('power.seconds'));
                 }
 
 	        	// womp
-	        	var columnvar=$('td:eq(11)', nRow).html();
+	        	var columnvar=$('td:eq(11)', nRow).text();
 	        	columnvar = columnvar == '1' ? i18n.t('yes') :
 	        	(columnvar == '0' ? i18n.t('no') : '')
-	        	$('td:eq(11)', nRow).html(columnvar)
+	        	$('td:eq(11)', nRow).text(columnvar)
 
                 // network over sleep
-	        	var columnvar=$('td:eq(12)', nRow).html();
+	        	var columnvar=$('td:eq(12)', nRow).text();
 	        	columnvar = columnvar == '1' ? i18n.t('yes') :
 	        	(columnvar == '0' ? i18n.t('no') : '')
-	        	$('td:eq(12)', nRow).html(columnvar)
+	        	$('td:eq(12)', nRow).text(columnvar)
 
                 // tty keep awake
-	        	var columnvar=$('td:eq(13)', nRow).html();
+	        	var columnvar=$('td:eq(13)', nRow).text();
 	        	columnvar = columnvar == '1' ? i18n.t('yes') :
 	        	(columnvar == '0' ? i18n.t('no') : '')
-	        	$('td:eq(13)', nRow).html(columnvar)
+	        	$('td:eq(13)', nRow).text(columnvar)
 
                 // sms
-	        	var columnvar=$('td:eq(14)', nRow).html();
+	        	var columnvar=$('td:eq(14)', nRow).text();
 	        	columnvar = columnvar == '1' ? i18n.t('yes') :
 	        	(columnvar == '0' ? i18n.t('no') : '')
-	        	$('td:eq(14)', nRow).html(columnvar)
+	        	$('td:eq(14)', nRow).text(columnvar)
 
                 // gpu switch
-	        	var columnvar=$('td:eq(15)', nRow).html();
+	        	var columnvar=$('td:eq(15)', nRow).text();
                 if(columnvar == "2") {
-                     $('td:eq(15)', nRow).html(i18n.t('power.auto_gpu'));
+                     $('td:eq(15)', nRow).text(i18n.t('power.auto_gpu'));
                 } else if(columnvar == "1") {
-                     $('td:eq(15)', nRow).html(i18n.t('power.discreet'));
+                     $('td:eq(15)', nRow).text(i18n.t('power.discreet'));
                 } else if(columnvar == "0") {
-                     $('td:eq(15)', nRow).html(i18n.t('power.integrated'));
+                     $('td:eq(15)', nRow).text(i18n.t('power.integrated'));
                 } else{
-                     $('td:eq(15)', nRow).html("");
+                     $('td:eq(15)', nRow).text("");
                 }
 
                 // auto power off
-	        	var columnvar=$('td:eq(16)', nRow).html();
+	        	var columnvar=$('td:eq(16)', nRow).text();
 	        	columnvar = columnvar == '1' ? i18n.t('yes') :
 	        	(columnvar == '0' ? i18n.t('no') : '')
-	        	$('td:eq(16)', nRow).html(columnvar)
+	        	$('td:eq(16)', nRow).text(columnvar)
 
                 // auto restart
-	        	var columnvar=$('td:eq(17)', nRow).html();
+	        	var columnvar=$('td:eq(17)', nRow).text();
 	        	columnvar = columnvar == '1' ? i18n.t('yes') :
 	        	(columnvar == '0' ? i18n.t('no') : '')
-	        	$('td:eq(17)', nRow).html(columnvar)
+	        	$('td:eq(17)', nRow).text(columnvar)
 
                 // ac wake
-	        	var columnvar=$('td:eq(18)', nRow).html();
+	        	var columnvar=$('td:eq(18)', nRow).text();
 	        	columnvar = columnvar == '1' ? i18n.t('yes') :
 	        	(columnvar == '0' ? i18n.t('no') : '')
-	        	$('td:eq(18)', nRow).html(columnvar)
+	        	$('td:eq(18)', nRow).text(columnvar)
 
                 // lid wake
-	        	var columnvar=$('td:eq(19)', nRow).html();
+	        	var columnvar=$('td:eq(19)', nRow).text();
 	        	columnvar = columnvar == '1' ? i18n.t('yes') :
 	        	(columnvar == '0' ? i18n.t('no') : '')
-	        	$('td:eq(19)', nRow).html(columnvar)
+	        	$('td:eq(19)', nRow).text(columnvar)
 
                 // sleep on power buton
-	        	var columnvar=$('td:eq(20)', nRow).html();
+	        	var columnvar=$('td:eq(20)', nRow).text();
 	        	columnvar = columnvar == '1' ? i18n.t('yes') :
 	        	(columnvar == '0' ? i18n.t('no') : '')
-	        	$('td:eq(20)', nRow).html(columnvar)
+	        	$('td:eq(20)', nRow).text(columnvar)
 
                 // destroy filevault keys
-	        	var columnvar=$('td:eq(21)', nRow).html();
+	        	var columnvar=$('td:eq(21)', nRow).text();
 	        	columnvar = columnvar == '1' ? i18n.t('yes') :
 	        	(columnvar == '0' ? i18n.t('no') : '')
-	        	$('td:eq(21)', nRow).html(columnvar)
+	        	$('td:eq(21)', nRow).text(columnvar)
 
 		    }
 	    } );

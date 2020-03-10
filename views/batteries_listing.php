@@ -108,47 +108,47 @@
             columnDefs: columnDefs,
 		    createdRow: function( nRow, aData, iDataIndex ) {
                 // Update name in first column to link
-                var name=$('td:eq(0)', nRow).html();
+                var name=$('td:eq(0)', nRow).text();
                 if(name == ''){name = "No Name"};
-                var sn=$('td:eq(1)', nRow).html();
+                var sn=$('td:eq(1)', nRow).text();
                 var link = mr.getClientDetailLink(name, sn, '#tab_battery-tab');
                 $('td:eq(0)', nRow).html(link);
 
                 // Format designed capacity
-                var capacity=$('td:eq(3)', nRow).html();
+                var capacity=$('td:eq(3)', nRow).text();
                 if (capacity != "" && (capacity)) {
-                    $('td:eq(3)', nRow).html(capacity+' mAh').addClass('text-right');
+                    $('td:eq(3)', nRow).text(capacity+' mAh').addClass('text-right');
                 } else {
-                    $('td:eq(3)', nRow).html('');
+                    $('td:eq(3)', nRow).text('');
                 }
 
                 // Format maximum capacity
-                var capacity=$('td:eq(4)', nRow).html();
+                var capacity=$('td:eq(4)', nRow).text();
                 if (capacity != "" && (capacity)) {
-                    $('td:eq(4)', nRow).html(capacity+' mAh').addClass('text-right');
+                    $('td:eq(4)', nRow).text(capacity+' mAh').addClass('text-right');
                 } else {
-                    $('td:eq(4)', nRow).html('');
+                    $('td:eq(4)', nRow).text('');
                 }
 
                 // Format cycles
-                var cycles=$('td:eq(5)', nRow).html();
+                var cycles=$('td:eq(5)', nRow).text();
                 if (cycles != "" && (cycles)) {
-                    $('td:eq(5)', nRow).html(cycles+'').addClass('text-right');
+                    $('td:eq(5)', nRow).text(cycles+'').addClass('text-right');
                 } else {
-                    $('td:eq(5)', nRow).html('');
+                    $('td:eq(5)', nRow).text('');
                 }
 
                 // Format battery health
-                var max_percent=$('td:eq(6)', nRow).html();
+                var max_percent=$('td:eq(6)', nRow).text();
                 if (max_percent != "" && (max_percent)) {
                     var cls = max_percent > 89 ? 'success' : (max_percent > 79 ? 'warning' : 'danger');
                     $('td:eq(6)', nRow).html('<div class="progress"><div class="progress-bar progress-bar-'+cls+'" style="width: '+max_percent+'%;">'+max_percent+'%</div></div>');
                 } else {
-                    $('td:eq(6)', nRow).html('');
+                    $('td:eq(6)', nRow).text('');
                 }
 
                 // Format battery condition
-                var status=$('td:eq(7)', nRow).html();
+                var status=$('td:eq(7)', nRow).text();
                 status = status == 'Good' ? '<span class="label label-success">'+i18n.t('power.widget.normal')+'</span>' : 
                 status = status == 'Normal' ? '<span class="label label-success">'+i18n.t('power.widget.normal')+'</span>' : 
                 status = status == 'Replace Soon' ? '<span class="label label-warning">'+i18n.t('power.widget.soon')+'</span>' :
@@ -166,25 +166,25 @@
                 $('td:eq(7)', nRow).html(status)
 
                 // Format current charge
-                var charge=$('td:eq(8)', nRow).html();
+                var charge=$('td:eq(8)', nRow).text();
                 if (charge != "" && (charge)) {
-                    $('td:eq(8)', nRow).html(charge+' mAh').addClass('text-right');
+                    $('td:eq(8)', nRow).text(charge+' mAh').addClass('text-right');
                 } else {
-                    $('td:eq(8)', nRow).html('');
+                    $('td:eq(8)', nRow).text('');
                 }
 
                 // Format percentage
-                var charge=$('td:eq(9)', nRow).html();
+                var charge=$('td:eq(9)', nRow).text();
                 if (charge != "" && (charge)) {
-                    $('td:eq(9)', nRow).html(charge+'%').addClass('text-right');
+                    $('td:eq(9)', nRow).text(charge+'%').addClass('text-right');
                 } else {
-                    $('td:eq(9)', nRow).html('');
+                    $('td:eq(9)', nRow).text('');
                 }
 
                 // Format temperature
                 // Check config for temperature_unit °C or °F
                 // °C * 9/5 + 32 = °F
-                var temperature=$('td:eq(10)', nRow).html();
+                var temperature=$('td:eq(10)', nRow).text();
                 if (temperature != "" ){
                     var temperature_unit = "<?=conf('temperature_unit')?>";
                     if ( temperature_unit == "F" ){
@@ -209,13 +209,13 @@
                         $('td:eq(10)', nRow).html('<span title="'+temperature_f+'">'+temperature_c+'</span>').addClass('text-right');
                     }
                 } else {
-                    $('td:eq(10)', nRow).html("");
+                    $('td:eq(10)', nRow).text("");
                 }
 
                 // Format Manufacture date
-                var date=$('td:eq(11)', nRow).html();
+                var date=$('td:eq(11)', nRow).text();
                 if(date === '1980-00-00'){
-                    $('td:eq(11)', nRow).addClass('text-right danger').html(i18n.t('power.widget.now'));
+                    $('td:eq(11)', nRow).addClass('text-right danger').text(i18n.t('power.widget.now'));
                 } else {
                     if(date){
                         a = moment(date)
@@ -229,15 +229,15 @@
                 }
 
                 // Format wattage
-                var wattage=$('td:eq(12)', nRow).html();
+                var wattage=$('td:eq(12)', nRow).text();
                 if (wattage != "" && (wattage)) {
                     $('td:eq(12)', nRow).html(wattage+" "+i18n.t('power.watts'));
                 } else {
-                    $('td:eq(12)', nRow).html('');
+                    $('td:eq(12)', nRow).text('');
                 }
 
                 // Format Check-In timestamp
-                var checkin = parseInt($('td:eq(14)', nRow).html());
+                var checkin = parseInt($('td:eq(14)', nRow).text());
                 var date = new Date(checkin * 1000);
                 $('td:eq(14)', nRow).html('<span title="'+moment(date).format('llll')+'">'+moment(date).fromNow()+'</span>');
             }
