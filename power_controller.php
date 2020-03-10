@@ -31,10 +31,6 @@ class Power_controller extends Module_controller
     public function get_data($serial_number = '')
     {
         $obj = new View();
-        if (! $this->authorized()) {
-            $obj->view('json', array('msg' => 'Not authorized'));
-            return;
-        }
         $power = new Power_model($serial_number);
         $temp_format = conf('temperature_unit');
         $power->rs['temp_format'] = $temp_format; // Add the temp format for use in the client tab's JavaScript    
@@ -49,12 +45,6 @@ class Power_controller extends Module_controller
     public function get_stats()
     {
         $obj = new View();
-        
-        if (! $this->authorized()) {
-            $obj->view('json', array('msg' => 'Not authorized'));
-            return;
-        }
-        
         $pm = new Power_model;
         $out[] = $pm->get_stats();
         $obj->view('json', array('msg' => $out));
@@ -69,13 +59,7 @@ class Power_controller extends Module_controller
      **/
     public function conditions()
     {
-        
         $obj = new View();
-        if (! $this->authorized()) {
-            $obj->view('json', array('msg' => 'Not authorized'));
-            return;
-        }
-
         $queryobj = new Power_model();
         $sql = "SELECT COUNT(CASE WHEN `condition` = 'Normal' OR `condition` = 'Good' THEN 1 END) AS normal,
 						COUNT(CASE WHEN `condition` = 'Replace Soon' OR `condition` = 'ReplaceSoon' OR `condition` = 'Fair' THEN 1 END) AS soon,
