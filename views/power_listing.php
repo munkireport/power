@@ -33,12 +33,13 @@
 		        <th data-i18n="power.lidwake" data-colname='power.lidwake'></th>
 		        <th data-i18n="power.sleep_on_power_button" data-colname='power.sleep_on_power_button'></th>
 		        <th data-i18n="power.destroyfvkeyonstandby_short" data-colname='power.destroyfvkeyonstandby'></th>
+		        <th data-i18n="power.schedule" data-colname='power.schedule'></th>
 		      </tr>
 		    </thead>
 		    <tbody>
 		    	<tr>
-					<td data-i18n="listing.loading" colspan="22" class="dataTables_empty"></td>
-				</tr>
+		          <td data-i18n="listing.loading" colspan="23" class="dataTables_empty"></td>
+		    	</tr>
 		    </tbody>
 		  </table>
     </div> <!-- /span 13 -->
