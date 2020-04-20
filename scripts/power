@@ -7,6 +7,7 @@ import os
 import sys
 import string
 import re
+import platform
 
 def get_battery_profiler():
     '''Uses system profiler to get power info for this machine.'''
@@ -71,51 +72,87 @@ def get_battery_profiler():
     return batteryprofiler
 
 def get_battery_stats():
-    cmd = ['/usr/sbin/ioreg', '-a', '-n', 'AppleSmartBattery', '-r']
-    output = subprocess.check_output(cmd)
-    try:
-        plist = plistlib.readPlistFromString(output)
-        batteryxml = plist[0]
+    
+    if getOsVersion() < 8:
+        # 10.8 and lower return this value differently
+        cmd = ['/usr/sbin/ioreg', '-n', 'AppleSmartBattery', '-r']
+        output = subprocess.check_output(cmd)
+        try:
+            for item in output.split("\n"):
+                if "DesignCapacity" in item:
+                    batteryinfo['DesignCapacity'] = remove_all('      "DesignCapacity" = ', item).strip()
+                elif "Temperature" in item:
+                    batteryinfo['Temperature'] = re.sub('[^0-9]','', remove_all('      "Temperature" = ', item).strip())
+                elif "TimeRemaining" in item:
+                    batteryinfo['TimeRemaining'] = remove_all('      "TimeRemaining" = ', item).strip()
+                elif "InstantTimeToEmpty" in item:
+                    batteryinfo['InstantTimeToEmpty'] = remove_all('      "InstantTimeToEmpty" = ', item).strip()
+                elif "PackReserve" in item:
+                    batteryinfo['PackReserve'] = remove_all('      "PackReserve" = ', item).strip()
+                elif "AvgTimeToFull" in item:
+                    batteryinfo['AvgTimeToFull'] = remove_all('      "AvgTimeToFull" = ', item).strip()
+                elif "AvgTimeToEmpty" in item:
+                    batteryinfo['AvgTimeToEmpty'] = remove_all('      "AvgTimeToEmpty" = ', item).strip()
+                elif "DesignCycleCount9C" in item:
+                    batteryinfo['DesignCycleCount9C'] = remove_all('      "DesignCycleCount9C" = ', item).strip()
+                elif "PermanentFailureStatus" in item:
+                    batteryinfo['PermanentFailureStatus'] = remove_all('      "PermanentFailureStatus" = ', item).strip()
+                elif "ManufactureDate" in item:
+                    batteryinfo['ManufactureDate'] = remove_all('      "ManufactureDate" = ', item).strip()
+                    
+            return batteryinfo
+        except:
+            return get_battery_profiler()
+    
+    else:
+        cmd = ['/usr/sbin/ioreg', '-a', '-n', 'AppleSmartBattery', '-r']
+        output = subprocess.check_output(cmd)
+        try:
+            plist = plistlib.readPlistFromString(output)
+            batteryxml = plist[0]
 
-        batteryinfo = get_battery_profiler()
+            batteryinfo = get_battery_profiler()
 
-        for item in batteryxml:
-                if item == 'DesignCapacity':
-                    batteryinfo['DesignCapacity'] = batteryxml[item]
-                elif item == 'Temperature':
-                    batteryinfo['Temperature'] = batteryxml[item]
-                elif item == 'TimeRemaining':
-                    batteryinfo['TimeRemaining'] = batteryxml[item]
-                elif item == 'InstantTimeToEmpty':
-                    batteryinfo['InstantTimeToEmpty'] = batteryxml[item]
-                elif item == 'PackReserve':
-                    batteryinfo['PackReserve'] = batteryxml[item]
-                elif item == 'AvgTimeToFull':
-                    batteryinfo['AvgTimeToFull'] = batteryxml[item]
-                elif item == 'AvgTimeToEmpty':
-                    batteryinfo['AvgTimeToEmpty'] = batteryxml[item]
-                elif item == 'AvgTimeToEmpty':
-                    batteryinfo['AvgTimeToEmpty'] = batteryxml[item]
-                elif item == 'DesignCycleCount9C':
-                    batteryinfo['DesignCycleCount9C'] = batteryxml[item]
-                elif item == 'PermanentFailureStatus':
-                    batteryinfo['PermanentFailureStatus'] = batteryxml[item]
-                elif item == 'ManufactureDate':
-                    batteryinfo['ManufactureDate'] = batteryxml[item]
-                elif item == 'CellVoltage':
-                    cells = []
-                    for cell in batteryxml[item]:
-                        if cell > 0:
-                            cells.append(str(float(cell)/1000)+"v")
-                    batteryinfo['CellVoltage'] = (', '.join(map(str,(cells))))
-        return batteryinfo
-    except:
-        return get_battery_profiler()
+            for item in batteryxml:
+                    if item == 'DesignCapacity':
+                        batteryinfo['DesignCapacity'] = batteryxml[item]
+                    elif item == 'Temperature':
+                        batteryinfo['Temperature'] = batteryxml[item]
+                    elif item == 'TimeRemaining':
+                        batteryinfo['TimeRemaining'] = batteryxml[item]
+                    elif item == 'InstantTimeToEmpty':
+                        batteryinfo['InstantTimeToEmpty'] = batteryxml[item]
+                    elif item == 'PackReserve':
+                        batteryinfo['PackReserve'] = batteryxml[item]
+                    elif item == 'AvgTimeToFull':
+                        batteryinfo['AvgTimeToFull'] = batteryxml[item]
+                    elif item == 'AvgTimeToEmpty':
+                        batteryinfo['AvgTimeToEmpty'] = batteryxml[item]
+                    elif item == 'DesignCycleCount9C':
+                        batteryinfo['DesignCycleCount9C'] = batteryxml[item]
+                    elif item == 'PermanentFailureStatus':
+                        batteryinfo['PermanentFailureStatus'] = batteryxml[item]
+                    elif item == 'ManufactureDate':
+                        batteryinfo['ManufactureDate'] = batteryxml[item]
+                    elif item == 'CellVoltage':
+                        cells = []
+                        for cell in batteryxml[item]:
+                            if cell > 0:
+                                cells.append(str(float(cell)/1000)+"v")
+                        batteryinfo['CellVoltage'] = (', '.join(map(str,(cells))))
+            return batteryinfo
+        except:
+            return get_battery_profiler()
     
 def get_pmset_accps():
+        
+    accpsinfo = get_battery_stats()
+    
+    if getOsVersion() < 8:
+        return accpsinfo
+    
     cmd = ['/usr/bin/pmset', '-g', 'accps']
     output = subprocess.check_output(cmd)
-    accpsinfo = get_battery_stats()
 
     for item in output.split("\n"):
         if "UPS" in item:
@@ -174,10 +211,15 @@ def get_pmset_sysload():
     return sysloadinfo
 
 def get_pmset_therm():
+    
+    therminfo = get_pmset_sysload()
+    
+    if getOsVersion() < 8:
+        return therminfo
+    
     cmd = ['/usr/bin/pmset', '-g', 'therm']
     output = subprocess.check_output(cmd)
     output = output.replace("CPU_Scheduler_Limit", "\nCPU_Scheduler_Limit")
-    therminfo = get_pmset_sysload()
 
     for item in output.split("\n"):
         if "CPU_Scheduler_Limit 	= " in item:
@@ -189,9 +231,14 @@ def get_pmset_therm():
     return therminfo
 
 def get_pmset_stats():
+    
+    statsinfo = get_pmset_therm()
+    
+    if getOsVersion() < 8:
+        return statsinfo
+    
     cmd = ['/usr/bin/pmset', '-g', 'stats']
     output = subprocess.check_output(cmd)
-    statsinfo = get_pmset_therm()
 
     for item in output.split("\n"):
         if "Sleep Count:" in item:
@@ -287,6 +334,11 @@ def remove_all(substr, str):
         index = string.find(str, substr)
         str = str[0:index] + str[index+length:]
     return str
+  
+def getOsVersion():
+    """Returns the minor OS version."""
+    os_version_tuple = platform.mac_ver()[0].split('.')
+    return int(os_version_tuple[1])
     
 def main():
     
