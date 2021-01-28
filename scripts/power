@@ -117,10 +117,16 @@ def get_battery_stats():
             for item in batteryxml:
                     if item == 'DesignCapacity':
                         batteryinfo['DesignCapacity'] = batteryxml[item]
-                    elif item == 'MaxCapacity' and platform.processor() == 'arm':
-                        batteryinfo['MaxCapacity'] = batteryxml[item] * batteryinfo['DesignCapacity'] / 100
-                    elif item == 'CurrentCapacity' and platform.processor() == 'arm':
-                        batteryinfo['CurrentCapacity'] = batteryxml[item] * batteryinfo['MaxCapacity'] / 100
+                    elif item == 'MaxCapacity': 
+                        if platform.processor() == 'arm':
+                            batteryinfo['MaxCapacity'] = batteryxml[item] * batteryinfo['DesignCapacity'] / 100
+                        else:
+                            batteryinfo['MaxCapacity'] = batteryxml[item]
+                    elif item == 'CurrentCapacity':
+                        if platform.processor() == 'arm':
+                            batteryinfo['CurrentCapacity'] = batteryxml[item] * batteryinfo['MaxCapacity'] / 100
+                        else:
+                            batteryinfo['CurrentCapacity'] = batteryxml[item]
                     elif item == 'Temperature':
                         batteryinfo['Temperature'] = batteryxml[item]
                     elif item == 'TimeRemaining':
