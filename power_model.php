@@ -308,7 +308,7 @@ class Power_model extends \Model
     {
         // Check if no battery is inserted and adjust values
         if ( $this->condition == "No Battery" || $this->condition == "") {
-            $this->manufacture_date = '1980-00-00';
+            $this->manufacture_date = '160310';
             $this->design_capacity = null;
             $this->max_capacity = null;
             $this->max_percent = null;

@@ -215,7 +215,7 @@
                 // Format Manufacture date
                 var date=$('td:eq(11)', nRow).text();
                 if(date === '1980-00-00'){
-                    $('td:eq(11)', nRow).addClass('text-right danger').text(i18n.t('power.widget.now'));
+                    //$('td:eq(11)', nRow).addClass('text-right danger').text(i18n.t('power.widget.now'));
                 } else {
                     if(date){
                         a = moment(date)

@@ -360,7 +360,7 @@ $(document).on('appReady', function(e, lang) {
 
                 // Format Manufacture date
                 if(data.manufacture_date === '1980-00-00'){
-                    $('#battery-manufacture_date').addClass('danger').text(i18n.t('power.widget.now'));
+                    //$('#battery-manufacture_date').addClass('danger').text(i18n.t('power.widget.now'));
                 } else {
                     if(data.manufacture_date){
                         a = moment(data.manufacture_date)
