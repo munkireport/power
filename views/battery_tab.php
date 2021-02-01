@@ -373,18 +373,18 @@ $(document).on('appReady', function(e, lang) {
                 }
 
                 // Format battery condition
-                data.condition = data.condition == 'Good' ? '<span class="label label-success">'+i18n.t('power.widget.normal')+'</span>' :
-                data.condition = data.condition == 'Normal' ? '<span class="label label-success">'+i18n.t('power.widget.normal')+'</span>' :
+                data.condition = data.condition == 'Good' ? '<span class="label label-success">'+i18n.t('power.widget.good')+'</span>' :
+                data.condition = data.condition == 'Normal' ? '<span class="label label-success">'+i18n.t('power.widget.nomral')+'</span>' :
                 data.condition = data.condition == 'Replace Soon' ? '<span class="label label-warning">'+i18n.t('power.widget.soon')+'</span>' :
                 data.condition = data.condition == 'ReplaceSoon' ? '<span class="label label-warning">'+i18n.t('power.widget.soon')+'</span>' :
-                data.condition = data.condition == 'Fair' ? '<span class="label label-warning">'+i18n.t('power.widget.soon')+'</span>' :
+                data.condition = data.condition == 'Fair' ? '<span class="label label-warning">'+i18n.t('power.widget.fair')+'</span>' :
                 data.condition = data.condition == 'Service Battery' ? '<span class="label label-warning">'+i18n.t('power.widget.service')+'</span>' :
                 data.condition = data.condition == 'ServiceBattery' ? '<span class="label label-warning">'+i18n.t('power.widget.service')+'</span>' :
                 data.condition = data.condition == 'Check Battery' ? '<span class="label label-warning">'+i18n.t('power.widget.check')+'</span>' :
                 data.condition = data.condition == 'CheckBattery' ? '<span class="label label-warning">'+i18n.t('power.widget.check')+'</span>' :
                 data.condition = data.condition == 'Replace Now' ? '<span class="label label-danger">'+i18n.t('power.widget.now')+'</span>' :
                 data.condition = data.condition == 'ReplaceNow' ? '<span class="label label-danger">'+i18n.t('power.widget.now')+'</span>' :
-                data.condition = data.condition == 'Poor' ? '<span class="label label-danger">'+i18n.t('power.widget.now')+'</span>' :
+                data.condition = data.condition == 'Poor' ? '<span class="label label-danger">'+i18n.t('power.widget.poor')+'</span>' :
                 data.condition = data.condition == '' ? '<span class="label label-danger">'+i18n.t('power.widget.nobattery')+'</span>' :
                 (data.condition === 'No Battery' ? '<span class="label label-danger">'+i18n.t('power.widget.nobattery')+'</span>' : '')
                 $('#battery-condition').html(data.condition)

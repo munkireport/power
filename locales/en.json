@@ -120,17 +120,20 @@
     "watts": "Watts",
     "widget": {
         "battery": "Battery",
-        "check": "Check Battery",
         "health": {
             "title": "Battery Health",
             "tooltip": "Battery health status listing"
         },
         "missing": "Missing",
         "nobattery": "No Battery",
+        "check": "Check Battery",
         "normal": "Normal",
         "now": "Replace Now",
         "service": "Service Now",
         "soon": "Replace Soon",
+        "poor": "Poor",
+        "good": "Good",
+        "fair": "Fair",
         "title": "Battery Condition",
         "tooltip": "Battery condition listing"
     },
