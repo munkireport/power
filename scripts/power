@@ -39,7 +39,7 @@ def get_battery_profiler():
                 batteryprofiler['SerialNumber'] = obj[item]
             elif item == 'sppower_ups_installed':
                 batteryprofiler['UPSInstalled'] = obj[item]
-            elif item == 'sppower_battery_installed' and obj['sppower_battery_installed'] == "TRUE":
+            elif item == 'sppower_battery_health_info':
                 batteryprofiler['condition'] = obj['sppower_battery_health_info']['sppower_battery_health']
             elif item == 'sppower_battery_installed' and obj['sppower_battery_installed'] == "FALSE":
                 batteryprofiler['condition'] = "No Battery"
@@ -52,6 +52,8 @@ def get_battery_profiler():
                     batteryprofiler['IsCharging'] = obj[item]['sppower_battery_is_charging']
                 if 'sppower_battery_fully_charged' in obj[item]:
                     batteryprofiler['FullyCharged'] = obj[item]['sppower_battery_fully_charged']
+                if 'sppower_battery_state_of_charge' in obj[item]:
+                    batteryprofiler['CurCharge'] = obj[item]['sppower_battery_state_of_charge']
             elif item == 'sppower_battery_health_info':
                 if 'sppower_battery_cycle_count' in obj[item]:
                     batteryprofiler['CycleCount'] = obj[item]['sppower_battery_cycle_count']
@@ -112,10 +114,19 @@ def get_battery_stats():
             batteryxml = plist[0]
 
             batteryinfo = get_battery_profiler()
-
             for item in batteryxml:
                     if item == 'DesignCapacity':
                         batteryinfo['DesignCapacity'] = batteryxml[item]
+                    elif item == 'MaxCapacity': 
+                        if platform.processor() == 'arm':
+                            batteryinfo['MaxCapacity'] = batteryxml[item] * batteryinfo['DesignCapacity'] / 100
+                        else:
+                            batteryinfo['MaxCapacity'] = batteryxml[item]
+                    elif item == 'CurrentCapacity':
+                        if platform.processor() == 'arm':
+                            batteryinfo['CurrentCapacity'] = batteryxml[item] * batteryinfo['MaxCapacity'] / 100
+                        else:
+                            batteryinfo['CurrentCapacity'] = batteryxml[item]
                     elif item == 'Temperature':
                         batteryinfo['Temperature'] = batteryxml[item]
                     elif item == 'TimeRemaining':
@@ -130,10 +141,18 @@ def get_battery_stats():
                         batteryinfo['AvgTimeToEmpty'] = batteryxml[item]
                     elif item == 'DesignCycleCount9C':
                         batteryinfo['DesignCycleCount9C'] = batteryxml[item]
+                    elif item == 'CycleCount':
+                        batteryinfo['CycleCount'] = batteryxml[item]
                     elif item == 'PermanentFailureStatus':
                         batteryinfo['PermanentFailureStatus'] = batteryxml[item]
+                    elif item == 'BatteryData':
+                        batteryinfo['ManufactureDate'] = "Unknown"
                     elif item == 'ManufactureDate':
                         batteryinfo['ManufactureDate'] = batteryxml[item]
+                    elif item == 'Serial':
+                        batteryinfo['BatterySerialNumber'] = batteryxml[item]
+                    elif item == 'Voltage':
+                        batteryinfo['Voltage'] = batteryxml[item]/float(1000)
                     elif item == 'CellVoltage':
                         cells = []
                         for cell in batteryxml[item]:
