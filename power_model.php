@@ -340,11 +340,15 @@ class Power_model extends \Model
 
             $ManufactureDate = $this->manufacture_date;
 
-            $mfgday = $this->manufacture_date & 31;
-            $mfgmonth = ($this->manufacture_date >> 5) & 15;
-            $mfgyear = (($this->manufacture_date >> 9) & 127) + 1980;
+            if (is_numeric($this->manufacture_date)) {
+                $mfgday = $this->manufacture_date & 31;
+                $mfgmonth = ($this->manufacture_date >> 5) & 15;
+                $mfgyear = (($this->manufacture_date >> 9) & 127) + 1980;
 
-            $this->manufacture_date = sprintf("%d-%02d-%02d", $mfgyear, $mfgmonth, $mfgday);
+                $this->manufacture_date = sprintf("%d-%02d-%02d", $mfgyear, $mfgmonth, $mfgday);
+             } else {
+                $this->manufacture_date = sprintf("1980-01-01");
+            }
         }
 
         // Timestamp added by the server

@@ -146,7 +146,9 @@ def get_battery_stats():
                     elif item == 'PermanentFailureStatus':
                         batteryinfo['PermanentFailureStatus'] = batteryxml[item]
                     elif item == 'BatteryData':
-                        batteryinfo['ManufactureDate'] = "Unknown"
+                        for bd_item in batteryxml[item]:
+                            if bd_item == 'ManufactureDate':
+                                batteryinfo['ManufactureDate'] = batteryxml[item][bd_item]
                     elif item == 'ManufactureDate':
                         batteryinfo['ManufactureDate'] = batteryxml[item]
                     elif item == 'Serial':
