@@ -347,7 +347,9 @@ class Power_model extends \Model
 
                 $this->manufacture_date = sprintf("%d-%02d-%02d", $mfgyear, $mfgmonth, $mfgday);
              } else {
-                $this->manufacture_date = sprintf("1980-01-01");
+                // Hardcode the date to be 'null' for the time being until
+                //   data from BigSur can be evaluated correctly. 
+                $this->manufacture_date = null;
             }
         }
 

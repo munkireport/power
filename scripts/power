@@ -8,6 +8,7 @@ import sys
 import string
 import re
 import platform
+import datetime
 
 def get_battery_profiler():
     '''Uses system profiler to get power info for this machine.'''
@@ -145,14 +146,63 @@ def get_battery_stats():
                         batteryinfo['CycleCount'] = batteryxml[item]
                     elif item == 'PermanentFailureStatus':
                         batteryinfo['PermanentFailureStatus'] = batteryxml[item]
-                    elif item == 'BatteryData':
-                        for bd_item in batteryxml[item]:
-                            if bd_item == 'ManufactureDate':
-                                batteryinfo['ManufactureDate'] = batteryxml[item][bd_item]
-                    elif item == 'ManufactureDate':
-                        batteryinfo['ManufactureDate'] = batteryxml[item]
                     elif item == 'Serial':
                         batteryinfo['BatterySerialNumber'] = batteryxml[item]
+                    elif item == 'BatteryData':
+                        # The format for battery manufacturing date changed in Big Sur.
+                        # Apple suggested parsing the SerialNumber that contains the manufacture date.
+                        # A SN of XXX1234ZZZZZZZZZZ has the manufacturing date as the values of 1234.
+                        # The first digit is the last digit of the year. 9 would be 2019.
+                        #   Note: they reset every decade. So you need to figure out if 9 is 2019 or 2029
+                        battery_serial_number = batteryxml[item]['Serial']
+                        battery_year_sn_digit = int(battery_serial_number[3])
+                        # The next two digits are the week number of the year
+                        battery_week_sn_digit = int(battery_serial_number[4:6])
+                        # The last digit is the day offset: 1 is Monday 7 is Sunday.
+                        battery_day_sn_digit = int(battery_serial_number[6])
+
+                        # Assume digits > 4 are the 2010 decade for now
+                        if battery_year_sn_digit > 4:
+                            battery_year = 2010 + battery_year_sn_digit
+                        else:
+                            battery_year = 2020 + battery_year_sn_digit
+                        
+                        # Set the variable of the date to year-Wweek-day:
+                        #           For example: 2018-10-20 = 2018-W42-5
+                        battery_date_data = str(battery_year) + '-W' + str(battery_week_sn_digit) + '-' + str(battery_day_sn_digit)
+                        
+                        # Python's evaluation of the week number does not respect the ISO week numbers.
+                        #   Reference: https://community.dataiku.com/t5/Using-Dataiku-DSS/Converting-week-and-year-to-datetime-stamp-using-Python-function/m-p/11310
+                        # This is addressed in Python 3.6+ with using the datetime strptime format of '%G %V %w'
+                        # To be backward compatible with 2.7 the additional work will need to exist.
+                        def iso_year_start(iso_year):
+                            "The gregorian calendar date of the first day of the given ISO year"
+                            fourth_jan = datetime.date(iso_year, 1, 4)
+                            delta = datetime.timedelta(fourth_jan.isoweekday()-1)
+                            return fourth_jan - delta 
+
+                        def iso_to_gregorian(iso_year, iso_week, iso_day):
+                            "Gregorian calendar date for the given ISO year, week and day"
+                            year_start = iso_year_start(iso_year)
+                            return year_start + datetime.timedelta(days=iso_day-1, weeks=iso_week-1)   
+
+                        dt = iso_to_gregorian(battery_year, battery_week_sn_digit, battery_day_sn_digit)
+                        battery_date = dt.strftime("%Y-%m-%d")
+                        # Calculate the date based off the year-week-day with a datetime value in the format YYYY-MM-DD
+                        #battery_date = datetime.datetime.strptime(battery_date_data, "%Y-W%W-%w")
+
+                        # Convert the date values to binary format
+                        binary_date_day = '{0:05b}'.format(int(battery_date.split("-")[2]))
+                        binary_date_month = '{0:04b}'.format(int(battery_date.split("-")[1]))
+                        binary_date_year = '{0:07b}'.format(int(battery_year) - 1980)
+                        # Combine the binary values into one long string of YYYYYYYMMMMDDDDD 
+                        #   to match the legacy battery ManufactureDate format
+                        binary_full_date = binary_date_year + binary_date_month + binary_date_day
+                        packed_date = int(binary_full_date, 2)
+                        
+                        batteryinfo['ManufactureDate'] = packed_date
+                    elif item == 'ManufactureDate':
+                        batteryinfo['ManufactureDate'] = batteryxml[item]
                     elif item == 'Voltage':
                         batteryinfo['Voltage'] = batteryxml[item]/float(1000)
                     elif item == 'CellVoltage':
