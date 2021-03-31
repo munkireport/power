@@ -149,18 +149,18 @@
 
                 // Format battery condition
                 var status=$('td:eq(7)', nRow).text();
-                status = status == 'Good' ? '<span class="label label-success">'+i18n.t('power.widget.good')+'</span>' : 
-                status = status == 'Normal' ? '<span class="label label-success">'+i18n.t('power.widget.normal')+'</span>' : 
-                status = status == 'Replace Soon' ? '<span class="label label-warning">'+i18n.t('power.widget.soon')+'</span>' :
-                status = status == 'ReplaceSoon' ? '<span class="label label-warning">'+i18n.t('power.widget.soon')+'</span>' :
-                status = status == 'Fair' ? '<span class="label label-warning">'+i18n.t('power.widget.fair')+'</span>' :
+                status = status == 'Good' ? '<span class="label label-success">'+i18n.t('power.widget.normal')+'</span>' :
+                status = status == 'Normal' ? '<span class="label label-success">'+i18n.t('power.widget.normal')+'</span>' :
                 status = status == 'Service Battery' ? '<span class="label label-warning">'+i18n.t('power.widget.service')+'</span>' :
                 status = status == 'ServiceBattery' ? '<span class="label label-warning">'+i18n.t('power.widget.service')+'</span>' :
                 status = status == 'Check Battery' ? '<span class="label label-warning">'+i18n.t('power.widget.check')+'</span>' :
                 status = status == 'CheckBattery' ? '<span class="label label-warning">'+i18n.t('power.widget.check')+'</span>' :
+                status = status == 'Replace Soon' ? '<span class="label label-warning">'+i18n.t('power.widget.soon')+'</span>' :
+                status = status == 'ReplaceSoon' ? '<span class="label label-warning">'+i18n.t('power.widget.soon')+'</span>' :
+                status = status == 'Fair' ? '<span class="label label-warning">'+i18n.t('power.widget.soon')+'</span>' :
                 status = status == 'Replace Now' ? '<span class="label label-danger">'+i18n.t('power.widget.now')+'</span>' :
                 status = status == 'ReplaceNow' ? '<span class="label label-danger">'+i18n.t('power.widget.now')+'</span>' :
-                status = status == 'Poor' ? '<span class="label label-danger">'+i18n.t('power.widget.poor')+'</span>' :
+                status = status == 'Poor' ? '<span class="label label-danger">'+i18n.t('power.widget.now')+'</span>' :
                 status = status == '' ? '<span class="label label-danger">'+i18n.t('power.widget.nobattery')+'</span>' :
                 (status === 'No Battery' ? '<span class="label label-danger">'+i18n.t('power.widget.nobattery')+'</span>' : '')
                 $('td:eq(7)', nRow).html(status)
@@ -214,8 +214,8 @@
 
                 // Format Manufacture date
                 var date=$('td:eq(11)', nRow).text();
-                if(date === '1980-00-00'){
-                    //$('td:eq(11)', nRow).addClass('text-right danger').text(i18n.t('power.widget.now'));
+                if(date === '1980-00-00' || date === '1980-01-01' || date == null || date == "Unknown"){
+                    $('td:eq(11)', nRow).addClass('text-right danger').text(i18n.t('power.widget.unknown'));
                 } else {
                     if(date){
                         a = moment(date)

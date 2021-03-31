@@ -22,32 +22,26 @@ $(document).on('appReady appUpdate', function(e, lang) {
     		//alert(data.error);
     		return;
     	}
-		
+
 		var panel = $('#battery-condition-widget div.panel-body'),
 			baseUrl = appUrl + '/show/listing/power/batteries';
 		panel.empty();
-		
+
 		// Set statuses
 		if(data.poor && data.poor != "0"){
-			panel.append(' <a href="'+baseUrl+'#poor" class="btn btn-danger"><span class="bigger-150">'+data.poor+'</span><br>'+i18n.t('power.widget.poor')+'</a>');
+			panel.append(' <a href="'+baseUrl+'#poor" class="btn btn-danger"><span class="bigger-150">'+data.poor+'</span><br>'+i18n.t('power.widget.now')+'</a>');
 		}
 		if(data.service && data.service != "0"){
-			panel.append(' <a href="'+baseUrl+'#battery" class="btn btn-danger"><span class="bigger-150">'+data.service+'</span><br>'+i18n.t('power.widget.service')+'</a>');
+			panel.append(' <a href="'+baseUrl+'#service" class="btn btn-danger"><span class="bigger-150">'+data.service+'</span><br>'+i18n.t('power.widget.service')+'</a>');
 		}
-		if(data.check && data.check != "0"){
-			panel.append(' <a href="'+baseUrl+'#battery" class="btn btn-warning"><span class="bigger-150">'+data.service+'</span><br>'+i18n.t('power.widget.service')+'</a>');
+		if(data.fair && data.service != "0"){
+			panel.append(' <a href="'+baseUrl+'#fair" class="btn btn-warning"><span class="bigger-150">'+data.fair+'</span><br>'+i18n.t('power.widget.soon')+'</a>');
 		}
-		if(data.fair){
-			panel.append(' <a href="'+baseUrl+'#fair" class="btn btn-warning"><span class="bigger-150">'+data.fair+'</span><br>'+i18n.t('power.widget.fair')+'</a>');
-		}
-		if(data.normal){
-			panel.append(' <a href="'+baseUrl+'#good" class="btn btn-success"><span class="bigger-150">'+data.good+'</span><br>'+i18n.t('power.widget.good')+'</a>');
-		}
-		if(data.good){
-			panel.append(' <a href="'+baseUrl+'#good" class="btn btn-success"><span class="bigger-150">'+data.good+'</span><br>'+i18n.t('power.widget.good')+'</a>');
+		if(data.good && data.service != "0"){
+			panel.append(' <a href="'+baseUrl+'#good" class="btn btn-success"><span class="bigger-150">'+data.good+'</span><br>'+i18n.t('power.widget.normal')+'</a>');
 		}
 		if(data.missing && data.missing != "0"){
-			panel.append(' <a href="'+baseUrl+'#nobattery" class="btn btn-info"><span class="bigger-150">'+data.missing+'</span><br>'+i18n.t('power.widget.nobattery')+'</a>');
+			panel.append(' <a href="'+baseUrl+'#no battery" class="btn btn-info"><span class="bigger-150">'+data.missing+'</span><br>'+i18n.t('power.widget.nobattery')+'</a>');
 		}
     });
 });

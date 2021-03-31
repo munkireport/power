@@ -44,19 +44,16 @@ def get_battery_profiler():
             elif item == 'sppower_battery_installed' and obj['sppower_battery_installed'] == "FALSE":
                 batteryprofiler['condition'] = "No Battery"
             elif item == 'sppower_battery_charge_info':
-                if 'sppower_battery_max_capacity' in obj[item]:
+                if 'sppower_battery_max_capacity' in obj[item]: # Keep for 10.8- compatibility vv
                     batteryprofiler['MaxCapacity'] = obj[item]['sppower_battery_max_capacity']
                 if 'sppower_battery_current_capacity' in obj[item]:
-                    batteryprofiler['CurrentCapacity'] = obj[item]['sppower_battery_current_capacity']
+                    batteryprofiler['CurrentCapacity'] = obj[item]['sppower_battery_current_capacity'] # Keep for 10.8- compatibility ^^
                 if 'sppower_battery_is_charging' in obj[item]:
                     batteryprofiler['IsCharging'] = obj[item]['sppower_battery_is_charging']
                 if 'sppower_battery_fully_charged' in obj[item]:
                     batteryprofiler['FullyCharged'] = obj[item]['sppower_battery_fully_charged']
-                if 'sppower_battery_state_of_charge' in obj[item]:
-                    batteryprofiler['CurCharge'] = obj[item]['sppower_battery_state_of_charge']
-            elif item == 'sppower_battery_health_info':
-                if 'sppower_battery_cycle_count' in obj[item]:
-                    batteryprofiler['CycleCount'] = obj[item]['sppower_battery_cycle_count']
+#                if 'sppower_battery_state_of_charge' in obj[item]:
+#                    batteryprofiler['CurCharge'] = obj[item]['sppower_battery_state_of_charge']
             elif item == 'sppower_battery_model_info':
                 if 'sppower_battery_firmware_version' in obj[item]:
                     batteryprofiler['FirmwareVersion'] = obj[item]['sppower_battery_firmware_version']
@@ -118,14 +115,14 @@ def get_battery_stats():
                     if item == 'DesignCapacity':
                         batteryinfo['DesignCapacity'] = batteryxml[item]
                     elif item == 'MaxCapacity': 
-                        if platform.processor() == 'arm':
-                            batteryinfo['MaxCapacity'] = batteryxml[item] * batteryinfo['DesignCapacity'] / 100
-                        else:
+#                        if platform.processor() == 'arm':
+#                            batteryinfo['MaxCapacity'] = batteryxml[item] * batteryinfo['MaxCapacity'] / 100
+#                        else:
                             batteryinfo['MaxCapacity'] = batteryxml[item]
                     elif item == 'CurrentCapacity':
-                        if platform.processor() == 'arm':
-                            batteryinfo['CurrentCapacity'] = batteryxml[item] * batteryinfo['MaxCapacity'] / 100
-                        else:
+#                        if platform.processor() == 'arm':
+#                            batteryinfo['CurrentCapacity'] = batteryxml[item] * batteryinfo['CurrentCapacity'] / 100
+#                        else:
                             batteryinfo['CurrentCapacity'] = batteryxml[item]
                     elif item == 'Temperature':
                         batteryinfo['Temperature'] = batteryxml[item]
@@ -145,20 +142,38 @@ def get_battery_stats():
                         batteryinfo['CycleCount'] = batteryxml[item]
                     elif item == 'PermanentFailureStatus':
                         batteryinfo['PermanentFailureStatus'] = batteryxml[item]
+                    elif item == 'BatteryInstalled' and batteryxml[item] == "FALSE":
+                        batteryinfo['condition'] = "No Battery"
                     elif item == 'BatteryData':
                         batteryinfo['ManufactureDate'] = "Unknown"
+                        if item == 'CellVoltage': # macOS 11+ stores cell voltage here
+                            cells = []
+                            for cell in batteryxml[item]:
+                                if cell > 0:
+                                    cells.append(str(float(cell)/1000)+"v")
+                            batteryinfo['CellVoltage'] = (', '.join(map(str,(cells))))
+                    if item == 'Serial': # macOS 11+ battery serial is here
+                        batteryinfo['BatterySerialNumber'] = batteryxml[item]
                     elif item == 'ManufactureDate':
                         batteryinfo['ManufactureDate'] = batteryxml[item]
-                    elif item == 'Serial':
-                        batteryinfo['BatterySerialNumber'] = batteryxml[item]
                     elif item == 'Voltage':
                         batteryinfo['Voltage'] = batteryxml[item]/float(1000)
-                    elif item == 'CellVoltage':
+                    elif item == 'CellVoltage': # macOS 10.15- stores cell voltage here
                         cells = []
                         for cell in batteryxml[item]:
                             if cell > 0:
                                 cells.append(str(float(cell)/1000)+"v")
                         batteryinfo['CellVoltage'] = (', '.join(map(str,(cells))))
+                    elif item == 'AdapterDetails':
+                        if 'Current' in batteryxml[item]:
+                            batteryinfo['adapter_current'] = format((float(batteryxml[item]['Current'])/1000),'.3f')
+                        if 'Voltage' in batteryxml[item]:
+                            batteryinfo['adapter_voltage'] = format((float(batteryxml[item]['Voltage'])/1000),'.3f')
+                    elif item == 'ChargerData':
+                        if 'ChargingCurrent' in batteryxml[item]:
+                            batteryinfo['charging_current'] = format((float(batteryxml[item]['ChargingCurrent'])/1000),'.3f')
+                        if 'ChargingVoltage' in batteryxml[item]:
+                            batteryinfo['charging_voltage'] = format((float(batteryxml[item]['ChargingVoltage'])/1000),'.3f')
             return batteryinfo
         except:
             return get_battery_profiler()
@@ -360,27 +375,17 @@ def getOsVersion():
     return int(os_version_tuple[1])
     
 def main():
-    
+
     """Main"""
     # Remove old power.sh script, if it exists
     if os.path.isfile(os.path.dirname(os.path.realpath(__file__))+'/power.sh'):
         os.remove(os.path.dirname(os.path.realpath(__file__))+'/power.sh')
-    
-    # Create cache dir if it does not exist
-    cachedir = '%s/cache' % os.path.dirname(os.path.realpath(__file__))
-    if not os.path.exists(cachedir):
-        os.makedirs(cachedir)
-
-    # Skip manual check
-    if len(sys.argv) > 1:
-        if sys.argv[1] == 'manualcheck':
-            print 'Manual check: skipping'
-            exit(0)
 
     # Get results
     info = get_pmset_general()
-        
+
     # Write power results to cache file
+    cachedir = '%s/cache' % os.path.dirname(os.path.realpath(__file__))
     output_plist = os.path.join(cachedir, 'powerinfo.plist')
     plistlib.writePlist(info, output_plist)
 #    print plistlib.writePlistToString(info)
