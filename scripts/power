@@ -161,11 +161,11 @@ def get_battery_stats():
                         # The last digit is the day offset: 1 is Monday 7 is Sunday.
                         battery_day_sn_digit = int(battery_serial_number[6])
 
-                        # Assume digits > 4 are the 2010 decade for now
-                        if battery_year_sn_digit > 4:
-                            battery_year = 2010 + battery_year_sn_digit
-                        else:
-                            battery_year = 2020 + battery_year_sn_digit
+                        # Determine the decade for the battery year
+                        current_decade = datetime.date.today().year - datetime.date.today().year % 10
+                        battery_year = current_decade + battery_year_sn_digit
+                        if (battery_year, battery_week_sn_digit) > datetime.date.today().isocalendar()[:2]:
+                            battery_year -= 10
                         
                         # Set the variable of the date to year-Wweek-day:
                         #           For example: 2018-10-20 = 2018-W42-5
