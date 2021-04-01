@@ -8,6 +8,7 @@ import sys
 import string
 import re
 import platform
+import datetime
 
 def get_battery_profiler():
     '''Uses system profiler to get power info for this machine.'''
@@ -72,7 +73,7 @@ def get_battery_profiler():
 
 def get_battery_stats():
     
-    if getOsVersion() < 8:
+    if getMinorOsVersion() < 8:
         # 10.8 and lower return this value differently
         cmd = ['/usr/sbin/ioreg', '-n', 'AppleSmartBattery', '-r']
         output = subprocess.check_output(cmd)
@@ -144,17 +145,73 @@ def get_battery_stats():
                         batteryinfo['PermanentFailureStatus'] = batteryxml[item]
                     elif item == 'BatteryInstalled' and batteryxml[item] == "FALSE":
                         batteryinfo['condition'] = "No Battery"
+                    elif item == 'Serial': # macOS 11+ battery serial is here
+                        batteryinfo['BatterySerialNumber'] = batteryxml[item]
                     elif item == 'BatteryData':
-                        batteryinfo['ManufactureDate'] = "Unknown"
                         if item == 'CellVoltage': # macOS 11+ stores cell voltage here
                             cells = []
                             for cell in batteryxml[item]:
                                 if cell > 0:
                                     cells.append(str(float(cell)/1000)+"v")
                             batteryinfo['CellVoltage'] = (', '.join(map(str,(cells))))
-                    if item == 'Serial': # macOS 11+ battery serial is here
-                        batteryinfo['BatterySerialNumber'] = batteryxml[item]
-                    elif item == 'ManufactureDate':
+                        # BatteryData values exist prior to Big Sur, but doesn't include the serial number in the dict.  Only run this routine if Big Sur or later.
+                        # Due to rosetta 2 and arch implications with python, evaluation of both major and minor OS version data is necessary.
+                        #  On arm hardware with native python, the output is ['11', '3']
+                        #  On intel or arm hardware with non-native python, the output is ['10', '16']
+                        if getMajorOsVersion() > 10 or getMinorOsVersion() > 15:
+                            # The format for battery manufacturing date changed in Big Sur.
+                            # Apple suggested parsing the SerialNumber that contains the manufacture date.
+                            # A SN of XXX1234ZZZZZZZZZZ has the manufacturing date as the values of 1234.
+                            # The first digit is the last digit of the year. 9 would be 2019.
+                            #   Note: they reset every decade. So you need to figure out if 9 is 2019 or 2029
+                            battery_serial_number = batteryxml[item]['Serial']
+                            battery_year_sn_digit = int(battery_serial_number[3])
+                            # The next two digits are the week number of the year
+                            battery_week_sn_digit = int(battery_serial_number[4:6])
+                            # The last digit is the day offset: 1 is Monday 7 is Sunday.
+                            battery_day_sn_digit = int(battery_serial_number[6])
+
+                            # Determine the decade for the battery year
+                            current_decade = datetime.date.today().year - datetime.date.today().year % 10
+                            battery_year = current_decade + battery_year_sn_digit
+                            if (battery_year, battery_week_sn_digit) > datetime.date.today().isocalendar()[:2]:
+                                battery_year -= 10
+                        
+                            # Set the variable of the date to year-Wweek-day:
+                            #           For example: 2018-10-20 = 2018-W42-5
+                            battery_date_data = str(battery_year) + '-W' + str(battery_week_sn_digit) + '-' + str(battery_day_sn_digit)
+                        
+                            # Python's evaluation of the week number does not respect the ISO week numbers.
+                            #   Reference: https://community.dataiku.com/t5/Using-Dataiku-DSS/Converting-week-and-year-to-datetime-stamp-using-Python-function/m-p/11310
+                            # This is addressed in Python 3.6+ with using the datetime strptime format of '%G %V %w'
+                            # To be backward compatible with 2.7 the additional work will need to exist.
+                            def iso_year_start(iso_year):
+                                "The gregorian calendar date of the first day of the given ISO year"
+                                fourth_jan = datetime.date(iso_year, 1, 4)
+                                delta = datetime.timedelta(fourth_jan.isoweekday()-1)
+                                return fourth_jan - delta 
+
+                            def iso_to_gregorian(iso_year, iso_week, iso_day):
+                                "Gregorian calendar date for the given ISO year, week and day"
+                                year_start = iso_year_start(iso_year)
+                                return year_start + datetime.timedelta(days=iso_day-1, weeks=iso_week-1)   
+
+                            dt = iso_to_gregorian(battery_year, battery_week_sn_digit, battery_day_sn_digit)
+                            battery_date = dt.strftime("%Y-%m-%d")
+                            # Calculate the date based off the year-week-day with a datetime value in the format YYYY-MM-DD
+                            #battery_date = datetime.datetime.strptime(battery_date_data, "%Y-W%W-%w")
+
+                            # Convert the date values to binary format
+                            binary_date_day = '{0:05b}'.format(int(battery_date.split("-")[2]))
+                            binary_date_month = '{0:04b}'.format(int(battery_date.split("-")[1]))
+                            binary_date_year = '{0:07b}'.format(int(battery_year) - 1980)
+                            # Combine the binary values into one long string of YYYYYYYMMMMDDDDD 
+                            #   to match the legacy battery ManufactureDate format
+                            binary_full_date = binary_date_year + binary_date_month + binary_date_day
+                            packed_date = int(binary_full_date, 2)
+                        
+                            batteryinfo['ManufactureDate'] = packed_date
+                    elif item == 'ManufactureDate': # 10.15- has Manufacture Date here
                         batteryinfo['ManufactureDate'] = batteryxml[item]
                     elif item == 'Voltage':
                         batteryinfo['Voltage'] = batteryxml[item]/float(1000)
@@ -182,7 +239,7 @@ def get_pmset_accps():
         
     accpsinfo = get_battery_stats()
     
-    if getOsVersion() < 8:
+    if getMinorOsVersion() < 8:
         return accpsinfo
     
     cmd = ['/usr/bin/pmset', '-g', 'accps']
@@ -248,7 +305,7 @@ def get_pmset_therm():
     
     therminfo = get_pmset_sysload()
     
-    if getOsVersion() < 8:
+    if getMinorOsVersion() < 8:
         return therminfo
     
     cmd = ['/usr/bin/pmset', '-g', 'therm']
@@ -268,7 +325,7 @@ def get_pmset_stats():
     
     statsinfo = get_pmset_therm()
     
-    if getOsVersion() < 8:
+    if getMinorOsVersion() < 8:
         return statsinfo
     
     cmd = ['/usr/bin/pmset', '-g', 'stats']
@@ -369,7 +426,12 @@ def remove_all(substr, str):
         str = str[0:index] + str[index+length:]
     return str
   
-def getOsVersion():
+def getMajorOsVersion():
+    """Returns the major OS version."""
+    os_version_tuple = platform.mac_ver()[0].split('.')
+    return int(os_version_tuple[0])
+
+def getMinorOsVersion():
     """Returns the minor OS version."""
     os_version_tuple = platform.mac_ver()[0].split('.')
     return int(os_version_tuple[1])
