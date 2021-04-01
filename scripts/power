@@ -148,13 +148,15 @@ def get_battery_stats():
                     elif item == 'Serial': # macOS 11+ battery serial is here
                         batteryinfo['BatterySerialNumber'] = batteryxml[item]
                     elif item == 'BatteryData':
-                        if item == 'CellVoltage': # macOS 11+ stores cell voltage here
+                        if 'CellVoltage' in batteryxml[item]: # macOS 11+ stores cell voltage here
                             cells = []
                             for cell in batteryxml[item]:
                                 if cell > 0:
                                     cells.append(str(float(cell)/1000)+"v")
                             batteryinfo['CellVoltage'] = (', '.join(map(str,(cells))))
-                        # BatteryData values exist prior to Big Sur, but doesn't include the serial number in the dict.  Only run this routine if Big Sur or later.
+
+                        # BatteryData values exist prior to Big Sur, but doesn't include the serial number in the dict. 
+                        # Only run this routine if Big Sur or later.
                         # Due to rosetta 2 and arch implications with python, evaluation of both major and minor OS version data is necessary.
                         #  On arm hardware with native python, the output is ['11', '3']
                         #  On intel or arm hardware with non-native python, the output is ['10', '16']
