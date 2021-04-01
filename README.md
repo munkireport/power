@@ -16,8 +16,8 @@ Data can be viewed at
 - Batteries under Listing menu
 - Battery tab on the client details page
 
-Power module
-==============
+Table Schema
+-----
 
 * manufacture_date - VARCHAR(255) - Date of battery's manufacture
 * design_capacity - INT(11) - Design capacity of battery
@@ -80,7 +80,7 @@ Power module
 * userisactive - INT(11) - Is an active user preventing sleep
 * preventuseridledisplaysleep - INT(11) - Keep display awake when user is idle
 * preventsystemsleep - INT(11) - Keep system awake
-* externalmedia - INT(11) - Is extneral media keeping machine awake
+* externalmedia - INT(11) - Is external media keeping machine awake
 * preventuseridlesystemsleep - INT(11) - Keep system awake when user is idle
 * networkclientactive - INT(11) - Is a network client keeping machine awake
 * cpu_scheduler_limit - INT(11) - CPU scheduler throttle limit
@@ -96,3 +96,7 @@ Power module
 * amperage - FLOAT - Amperage of battery
 * designcyclecount - INT(11) - Design cycle count of battery
 * avgtimetoempty - INT(11) - Estimated time until empty battery
+* adapter_current - FLOAT - Adapter available current
+* adapter_voltage - FLOAT - Adapter available voltage
+* charging_current - FLOAT - Adapter current in use
+* charging_voltage - FLOAT - Adapter voltage in use

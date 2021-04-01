@@ -238,6 +238,10 @@ class Power_model extends \Model
             'AdapterID' => 'adapter_id',
             'FamilyCode' => 'family_code',
             'SerialNumber' => 'adapter_serial_number',
+            'adapter_current' => 'adapter_current',
+            'adapter_voltage' => 'adapter_voltage',
+            'charging_current' => 'charging_current',
+            'charging_voltage' => 'charging_voltage',
             'CPUSchedulerLimit' => 'cpu_scheduler_limit',
             'CPUAvailableCPUs' => 'cpu_available_cpus',
             'CPUSpeedLimit' => 'cpu_speed_limit',
@@ -308,7 +312,7 @@ class Power_model extends \Model
     {
         // Check if no battery is inserted and adjust values
         if ( $this->condition == "No Battery" || $this->condition == "") {
-            $this->manufacture_date = '160310';
+            $this->manufacture_date = null;
             $this->design_capacity = null;
             $this->max_capacity = null;
             $this->max_percent = null;
@@ -357,6 +361,6 @@ class Power_model extends \Model
         $this->timestamp = time();
 
         // Fix condition
-        $this->condition = str_replace(array('ServiceBattery','ReplaceSoon','ReplaceNow'),array('Service Battery','Replace Soon','Replace Now'), $this->condition);
+        $this->condition = str_replace(array('Normal','ServiceBattery','Service Battery','ReplaceSoon','Replace Soon','ReplaceNow','Replace Now'),array('Good','Service','Service','Fair','Fair','Poor','Poor'), $this->condition);
     }
 }
