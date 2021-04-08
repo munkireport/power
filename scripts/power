@@ -99,11 +99,11 @@ def get_battery_stats():
                     batteryinfo['PermanentFailureStatus'] = remove_all('      "PermanentFailureStatus" = ', item).strip()
                 elif "ManufactureDate" in item:
                     batteryinfo['ManufactureDate'] = remove_all('      "ManufactureDate" = ', item).strip()
-                    
+
             return batteryinfo
         except:
             return get_battery_profiler()
-    
+
     else:
         cmd = ['/usr/sbin/ioreg', '-a', '-n', 'AppleSmartBattery', '-r']
         output = subprocess.check_output(cmd)
@@ -113,126 +113,124 @@ def get_battery_stats():
 
             batteryinfo = get_battery_profiler()
             for item in batteryxml:
-                    if item == 'DesignCapacity':
-                        batteryinfo['DesignCapacity'] = batteryxml[item]
-                    elif item == 'MaxCapacity': 
-#                        if platform.processor() == 'arm':
-#                            batteryinfo['MaxCapacity'] = batteryxml[item] * batteryinfo['MaxCapacity'] / 100
-#                        else:
-                            batteryinfo['MaxCapacity'] = batteryxml[item]
-                    elif item == 'CurrentCapacity':
-#                        if platform.processor() == 'arm':
-#                            batteryinfo['CurrentCapacity'] = batteryxml[item] * batteryinfo['CurrentCapacity'] / 100
-#                        else:
-                            batteryinfo['CurrentCapacity'] = batteryxml[item]
-                    elif item == 'Temperature':
-                        batteryinfo['Temperature'] = batteryxml[item]
-                    elif item == 'TimeRemaining':
-                        batteryinfo['TimeRemaining'] = batteryxml[item]
-                    elif item == 'InstantTimeToEmpty':
-                        batteryinfo['InstantTimeToEmpty'] = batteryxml[item]
-                    elif item == 'PackReserve':
-                        batteryinfo['PackReserve'] = batteryxml[item]
-                    elif item == 'AvgTimeToFull':
-                        batteryinfo['AvgTimeToFull'] = batteryxml[item]
-                    elif item == 'AvgTimeToEmpty':
-                        batteryinfo['AvgTimeToEmpty'] = batteryxml[item]
-                    elif item == 'DesignCycleCount9C':
-                        batteryinfo['DesignCycleCount9C'] = batteryxml[item]
-                    elif item == 'CycleCount':
-                        batteryinfo['CycleCount'] = batteryxml[item]
-                    elif item == 'PermanentFailureStatus':
-                        batteryinfo['PermanentFailureStatus'] = batteryxml[item]
-                    elif item == 'BatteryInstalled' and batteryxml[item] == "FALSE":
-                        batteryinfo['condition'] = "No Battery"
-                    elif item == 'Serial': # macOS 11+ battery serial is here
-                        batteryinfo['BatterySerialNumber'] = batteryxml[item]
-                    elif item == 'BatteryData':
-                        if 'CellVoltage' in batteryxml[item]: # macOS 11+ stores cell voltage here
-                            cells = []
-                            for cell in batteryxml[item]['CellVoltage']:
-                                if cell > 0:
-                                    cells.append(str(float(cell)/1000)+"v")
-                            batteryinfo['CellVoltage'] = (', '.join(map(str,(cells))))
-
-                        # BatteryData values exist prior to Big Sur, but doesn't include the serial number in the dict. 
-                        # Only run this routine if Big Sur or later.
-                        # Due to rosetta 2 and arch implications with python, evaluation of both major and minor OS version data is necessary.
-                        #  On arm hardware with native python, the output is ['11', '3']
-                        #  On intel or arm hardware with non-native python, the output is ['10', '16']
-                        if getMajorOsVersion() > 10 or getMinorOsVersion() > 15:
-                            # The format for battery manufacturing date changed in Big Sur.
-                            # Apple suggested parsing the SerialNumber that contains the manufacture date.
-                            # A SN of XXX1234ZZZZZZZZZZ has the manufacturing date as the values of 1234.
-                            # The first digit is the last digit of the year. 9 would be 2019.
-                            #   Note: they reset every decade. So you need to figure out if 9 is 2019 or 2029
-                            battery_serial_number = batteryxml[item]['Serial']
-                            battery_year_sn_digit = int(battery_serial_number[3])
-                            # The next two digits are the week number of the year
-                            battery_week_sn_digit = int(battery_serial_number[4:6])
-                            # The last digit is the day offset: 1 is Monday 7 is Sunday.
-                            battery_day_sn_digit = int(battery_serial_number[6])
-
-                            # Determine the decade for the battery year
-                            current_decade = datetime.date.today().year - datetime.date.today().year % 10
-                            battery_year = current_decade + battery_year_sn_digit
-                            if (battery_year, battery_week_sn_digit) > datetime.date.today().isocalendar()[:2]:
-                                battery_year -= 10
-                        
-                            # Set the variable of the date to year-Wweek-day:
-                            #           For example: 2018-10-20 = 2018-W42-5
-                            battery_date_data = str(battery_year) + '-W' + str(battery_week_sn_digit) + '-' + str(battery_day_sn_digit)
-                        
-                            # Python's evaluation of the week number does not respect the ISO week numbers.
-                            #   Reference: https://community.dataiku.com/t5/Using-Dataiku-DSS/Converting-week-and-year-to-datetime-stamp-using-Python-function/m-p/11310
-                            # This is addressed in Python 3.6+ with using the datetime strptime format of '%G %V %w'
-                            # To be backward compatible with 2.7 the additional work will need to exist.
-                            def iso_year_start(iso_year):
-                                "The gregorian calendar date of the first day of the given ISO year"
-                                fourth_jan = datetime.date(iso_year, 1, 4)
-                                delta = datetime.timedelta(fourth_jan.isoweekday()-1)
-                                return fourth_jan - delta 
-
-                            def iso_to_gregorian(iso_year, iso_week, iso_day):
-                                "Gregorian calendar date for the given ISO year, week and day"
-                                year_start = iso_year_start(iso_year)
-                                return year_start + datetime.timedelta(days=iso_day-1, weeks=iso_week-1)   
-
-                            dt = iso_to_gregorian(battery_year, battery_week_sn_digit, battery_day_sn_digit)
-                            battery_date = dt.strftime("%Y-%m-%d")
-                            # Calculate the date based off the year-week-day with a datetime value in the format YYYY-MM-DD
-                            #battery_date = datetime.datetime.strptime(battery_date_data, "%Y-W%W-%w")
-
-                            # Convert the date values to binary format
-                            binary_date_day = '{0:05b}'.format(int(battery_date.split("-")[2]))
-                            binary_date_month = '{0:04b}'.format(int(battery_date.split("-")[1]))
-                            binary_date_year = '{0:07b}'.format(int(battery_year) - 1980)
-                            # Combine the binary values into one long string of YYYYYYYMMMMDDDDD 
-                            #   to match the legacy battery ManufactureDate format
-                            binary_full_date = binary_date_year + binary_date_month + binary_date_day
-                            packed_date = int(binary_full_date, 2)
-                        
-                            batteryinfo['ManufactureDate'] = packed_date
-                    elif item == 'ManufactureDate': # 10.15- has Manufacture Date here
-                        batteryinfo['ManufactureDate'] = batteryxml[item]
-                    elif item == 'Voltage':
-                        batteryinfo['Voltage'] = batteryxml[item]/float(1000)
-                    elif item == 'CellVoltage': # macOS 10.15- stores cell voltage here
+                if item == 'DesignCapacity':
+                    batteryinfo['DesignCapacity'] = batteryxml[item]
+                elif item == 'MaxCapacity' and platform.processor() == 'i386':
+                    batteryinfo['MaxCapacity'] = batteryxml[item]
+                elif item == 'AppleRawMaxCapacity' and platform.processor() == 'arm':
+                    batteryinfo['MaxCapacity'] = batteryxml[item]
+                elif item == 'CurrentCapacity' and platform.processor() == 'i386':
+                    batteryinfo['CurrentCapacity'] = batteryxml[item]
+                elif item == 'AppleRawCurrentCapacity' and platform.processor() == 'arm':
+                    batteryinfo['CurrentCapacity'] = batteryxml[item]
+                elif item == 'Temperature':
+                    batteryinfo['Temperature'] = batteryxml[item]
+                elif item == 'TimeRemaining':
+                    batteryinfo['TimeRemaining'] = batteryxml[item]
+                elif item == 'InstantTimeToEmpty':
+                    batteryinfo['InstantTimeToEmpty'] = batteryxml[item]
+                elif item == 'PackReserve':
+                    batteryinfo['PackReserve'] = batteryxml[item]
+                elif item == 'AvgTimeToFull':
+                    batteryinfo['AvgTimeToFull'] = batteryxml[item]
+                elif item == 'AvgTimeToEmpty':
+                    batteryinfo['AvgTimeToEmpty'] = batteryxml[item]
+                elif item == 'DesignCycleCount9C':
+                    batteryinfo['DesignCycleCount9C'] = batteryxml[item]
+                elif item == 'CycleCount':
+                    batteryinfo['CycleCount'] = batteryxml[item]
+                elif item == 'PermanentFailureStatus':
+                    batteryinfo['PermanentFailureStatus'] = batteryxml[item]
+                elif item == 'BatteryInstalled' and batteryxml[item] == "FALSE":
+                    batteryinfo['condition'] = "No Battery"
+                elif item == 'Serial': # macOS 11+ battery serial is here
+                    batteryinfo['BatterySerialNumber'] = batteryxml[item]
+                elif item == 'BatteryData':
+                    if 'CellVoltage' in batteryxml[item]: # macOS 11+ stores cell voltage here
                         cells = []
-                        for cell in batteryxml[item]:
+                        for cell in batteryxml[item]['CellVoltage']:
                             if cell > 0:
                                 cells.append(str(float(cell)/1000)+"v")
                         batteryinfo['CellVoltage'] = (', '.join(map(str,(cells))))
-                    elif item == 'AdapterDetails':
-                        if 'Current' in batteryxml[item]:
-                            batteryinfo['adapter_current'] = format((float(batteryxml[item]['Current'])/1000),'.3f')
-                        if 'Voltage' in batteryxml[item]:
-                            batteryinfo['adapter_voltage'] = format((float(batteryxml[item]['Voltage'])/1000),'.3f')
-                    elif item == 'ChargerData':
-                        if 'ChargingCurrent' in batteryxml[item]:
-                            batteryinfo['charging_current'] = format((float(batteryxml[item]['ChargingCurrent'])/1000),'.3f')
-                        if 'ChargingVoltage' in batteryxml[item]:
-                            batteryinfo['charging_voltage'] = format((float(batteryxml[item]['ChargingVoltage'])/1000),'.3f')
+
+                    # BatteryData values exist prior to Big Sur, but doesn't include the serial number in the dict. 
+                    # Only run this routine if Big Sur or later.
+                    # Due to rosetta 2 and arch implications with python, evaluation of both major and minor OS version data is necessary.
+                    #  On arm hardware with native python, the output is ['11', '3']
+                    #  On intel or arm hardware with non-native python, the output is ['10', '16']
+                    if getMajorOsVersion() > 10 or getMinorOsVersion() > 15:
+                        # The format for battery manufacturing date changed in Big Sur.
+                        # Apple suggested parsing the SerialNumber that contains the manufacture date.
+                        # A SN of XXX1234ZZZZZZZZZZ has the manufacturing date as the values of 1234.
+                        # The first digit is the last digit of the year. 9 would be 2019.
+                        #   Note: they reset every decade. So you need to figure out if 9 is 2019 or 2029
+                        battery_serial_number = batteryxml[item]['Serial']
+                        battery_year_sn_digit = int(battery_serial_number[3])
+                        # The next two digits are the week number of the year
+                        battery_week_sn_digit = int(battery_serial_number[4:6])
+                        # The last digit is the day offset: 1 is Monday 7 is Sunday.
+                        battery_day_sn_digit = int(battery_serial_number[6])
+
+                        # Determine the decade for the battery year
+                        current_decade = datetime.date.today().year - datetime.date.today().year % 10
+                        battery_year = current_decade + battery_year_sn_digit
+                        if (battery_year, battery_week_sn_digit) > datetime.date.today().isocalendar()[:2]:
+                            battery_year -= 10
+
+                        # Set the variable of the date to year-Wweek-day:
+                        #           For example: 2018-10-20 = 2018-W42-5
+                        battery_date_data = str(battery_year) + '-W' + str(battery_week_sn_digit) + '-' + str(battery_day_sn_digit)
+
+                        # Python's evaluation of the week number does not respect the ISO week numbers.
+                        #   Reference: https://community.dataiku.com/t5/Using-Dataiku-DSS/Converting-week-and-year-to-datetime-stamp-using-Python-function/m-p/11310
+                        # This is addressed in Python 3.6+ with using the datetime strptime format of '%G %V %w'
+                        # To be backward compatible with 2.7 the additional work will need to exist.
+                        def iso_year_start(iso_year):
+                            "The gregorian calendar date of the first day of the given ISO year"
+                            fourth_jan = datetime.date(iso_year, 1, 4)
+                            delta = datetime.timedelta(fourth_jan.isoweekday()-1)
+                            return fourth_jan - delta 
+
+                        def iso_to_gregorian(iso_year, iso_week, iso_day):
+                            "Gregorian calendar date for the given ISO year, week and day"
+                            year_start = iso_year_start(iso_year)
+                            return year_start + datetime.timedelta(days=iso_day-1, weeks=iso_week-1)   
+
+                        dt = iso_to_gregorian(battery_year, battery_week_sn_digit, battery_day_sn_digit)
+                        battery_date = dt.strftime("%Y-%m-%d")
+                        # Calculate the date based off the year-week-day with a datetime value in the format YYYY-MM-DD
+                        #battery_date = datetime.datetime.strptime(battery_date_data, "%Y-W%W-%w")
+
+                        # Convert the date values to binary format
+                        binary_date_day = '{0:05b}'.format(int(battery_date.split("-")[2]))
+                        binary_date_month = '{0:04b}'.format(int(battery_date.split("-")[1]))
+                        binary_date_year = '{0:07b}'.format(int(battery_year) - 1980)
+                        # Combine the binary values into one long string of YYYYYYYMMMMDDDDD 
+                        #   to match the legacy battery ManufactureDate format
+                        binary_full_date = binary_date_year + binary_date_month + binary_date_day
+                        packed_date = int(binary_full_date, 2)
+
+                        batteryinfo['ManufactureDate'] = packed_date
+                elif item == 'ManufactureDate': # 10.15- has Manufacture Date here
+                    batteryinfo['ManufactureDate'] = batteryxml[item]
+                elif item == 'Voltage':
+                    batteryinfo['Voltage'] = batteryxml[item]/float(1000)
+                elif item == 'CellVoltage': # macOS 10.15- stores cell voltage here
+                    cells = []
+                    for cell in batteryxml[item]:
+                        if cell > 0:
+                            cells.append(str(float(cell)/1000)+"v")
+                    batteryinfo['CellVoltage'] = (', '.join(map(str,(cells))))
+                elif item == 'AdapterDetails':
+                    if 'Current' in batteryxml[item]:
+                        batteryinfo['adapter_current'] = format((float(batteryxml[item]['Current'])/1000),'.3f')
+                    if 'Voltage' in batteryxml[item]:
+                        batteryinfo['adapter_voltage'] = format((float(batteryxml[item]['Voltage'])/1000),'.3f')
+                elif item == 'ChargerData':
+                    if 'ChargingCurrent' in batteryxml[item]:
+                        batteryinfo['charging_current'] = format((float(batteryxml[item]['ChargingCurrent'])/1000),'.3f')
+                    if 'ChargingVoltage' in batteryxml[item]:
+                        batteryinfo['charging_voltage'] = format((float(batteryxml[item]['ChargingVoltage'])/1000),'.3f')
             return batteryinfo
         except:
             return get_battery_profiler()
