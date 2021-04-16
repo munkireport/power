@@ -93,6 +93,7 @@ class Power_model extends \Model
         $this->rs['adapter_manufacturer'] = '';
         $this->rs['adapter_name'] = '';
 
+
         if ($serial) {
             $this->retrieve_record($serial);
         }
