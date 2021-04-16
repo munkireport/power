@@ -100,3 +100,5 @@ Table Schema
 * adapter_voltage - FLOAT - Adapter available voltage
 * charging_current - FLOAT - Adapter current in use
 * charging_voltage - FLOAT - Adapter voltage in use
+* adapter_manufacturer - VARCHAR(255) - Adapter manufacturer
+* adapter_name - VARCHAR(255) - Adapter name
