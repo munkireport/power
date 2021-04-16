@@ -86,8 +86,12 @@ class Power_model extends \Model
         $this->rs['amperage'] = 0.0;
         $this->rs['designcyclecount'] = 0;
         $this->rs['avgtimetoempty'] = 0;
-        $this->rs['adapter_manufacturer'] = 0;
-        $this->rs['adapter_name'] = 0;
+        $this->rs['adapter_current'] = 0;
+        $this->rs['adapter_voltage'] = 0;
+        $this->rs['charging_current'] = 0;
+        $this->rs['charging_voltage'] = 0;
+        $this->rs['adapter_manufacturer'] = '';
+        $this->rs['adapter_name'] = '';
 
         if ($serial) {
             $this->retrieve_record($serial);
