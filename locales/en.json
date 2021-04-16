@@ -4,6 +4,8 @@
     "acwake": "AC Wake",
     "adapter": "Power Adapter",
     "adapter_id": "Adapter ID",
+    "adapter_manufacturer": "Adapter Manufacturer",
+    "adapter_name": "Adapter Name",
     "adapter_serial_number": "Adapter Serial Number",
     "adapter_current": "Adapter Current",
     "adapter_voltage": "Adapter Voltage",

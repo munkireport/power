@@ -38,6 +38,10 @@ def get_battery_profiler():
                 batteryprofiler['FamilyCode'] = obj[item]
             elif item == 'sppower_ac_charger_serial_number':
                 batteryprofiler['SerialNumber'] = obj[item]
+            elif item == 'sppower_ac_charger_name':
+                batteryprofiler['adapter_name'] = obj[item]
+            elif item == 'sppower_ac_charger_manufacturer':
+                batteryprofiler['adapter_manufacturer'] = obj[item]
             elif item == 'sppower_ups_installed':
                 batteryprofiler['UPSInstalled'] = obj[item]
             elif item == 'sppower_battery_health_info':

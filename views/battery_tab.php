@@ -155,7 +155,7 @@ $(document).on('appReady', function(){
                     adapter_rows = adapter_rows + '<tr><th>'+i18n.t('power.'+prop)+'</th><td>'+d[prop]+" "+i18n.t('power.watts')+'</td></tr>';
 
                 // Add adapter_rows strings
-                } else if((prop == "adapter_id" || prop == "family_code" || prop == "adapter_serial_number")){
+                } else if((prop == "adapter_id" || prop == "family_code" || prop == "adapter_serial_number" || prop == "adapter_name" || prop == "adapter_manufacturer")){
                     adapter_rows = adapter_rows + '<tr><th>'+i18n.t('power.'+prop)+'</th><td>'+d[prop]+'</td></tr>';
 
 

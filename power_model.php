@@ -86,6 +86,8 @@ class Power_model extends \Model
         $this->rs['amperage'] = 0.0;
         $this->rs['designcyclecount'] = 0;
         $this->rs['avgtimetoempty'] = 0;
+        $this->rs['adapter_manufacturer'] = 0;
+        $this->rs['adapter_name'] = 0;
 
         if ($serial) {
             $this->retrieve_record($serial);
@@ -240,6 +242,8 @@ class Power_model extends \Model
             'SerialNumber' => 'adapter_serial_number',
             'adapter_current' => 'adapter_current',
             'adapter_voltage' => 'adapter_voltage',
+            'adapter_manufacturer' => 'adapter_manufacturer',
+            'adapter_name' => 'adapter_name',
             'charging_current' => 'charging_current',
             'charging_voltage' => 'charging_voltage',
             'CPUSchedulerLimit' => 'cpu_scheduler_limit',
@@ -280,7 +284,7 @@ class Power_model extends \Model
         );
 
         // Array of strings
-        $strings =  array('manufacture_date', 'condition', 'hibernatefile', 'adapter_id', 'family_code', 'adapter_serial_number', 'combined_sys_load', 'user_sys_load', 'thermal_level', 'battery_level', 'ups_name', 'active_profile', 'ups_charging_status', 'externalconnected', 'cellvoltage', 'manufacturer', 'batteryserialnumber', 'fullycharged', 'ischarging','sleep_prevented_by','schedule');
+        $strings =  array('manufacture_date', 'condition', 'hibernatefile', 'adapter_id', 'family_code', 'adapter_serial_number', 'adapter_manufacturer', 'adapter_name', 'combined_sys_load', 'user_sys_load', 'thermal_level', 'battery_level', 'ups_name', 'active_profile', 'ups_charging_status', 'externalconnected', 'cellvoltage', 'manufacturer', 'batteryserialnumber', 'fullycharged', 'ischarging','sleep_prevented_by','schedule');
 
         // Traverse the xml with translations
         foreach ($translate as $search => $field) {
