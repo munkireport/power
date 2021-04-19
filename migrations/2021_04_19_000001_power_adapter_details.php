@@ -14,9 +14,6 @@ class PowerAdapterDetails extends Migration
         $capsule::schema()->table($this->tableName, function (Blueprint $table) {
             $table->string('adapter_manufacturer')->nullable();
             $table->string('adapter_name')->nullable();
-
-            $table->index('adapter_manufacturer');
-            $table->index('adapter_name');
         });
     }
 
