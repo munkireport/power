@@ -1,17 +1,17 @@
 <div class="col-lg-4 col-md-6">
 
-	<div class="panel panel-default" id="power-battery-health-widget">
+	<div class="card" id="power-battery-health-widget">
 
-		<div class="panel-heading" data-container="body" data-i18n="[title]power.widget.health.tooltip">
+		<div class="card-header" data-container="body" data-i18n="[title]power.widget.health.tooltip">
 
-			<h3 class="panel-title"><i class="fa fa-medkit"></i>
+			<i class="fa fa-medkit"></i>
 			    <span data-i18n="power.widget.health.title"></span> 
-			    <list-link data-url="/show/listing/power/batteries"></list-link>
-			%</h3>
+			    <a href="/show/listing/power/batteries" class="pull-right"><i class="fa fa-list"></i></a>
+			%
 
 		</div>
 
-		<div class="panel-body text-center"></div>
+		<div class="card-body text-center"></div>
 
 	</div><!-- /panel -->
 
@@ -20,7 +20,7 @@
 <script>
 $(document).on('appUpdate', function(e, lang) {
 
-	var body = $('#power-battery-health-widget div.panel-body');
+	var body = $('#power-battery-health-widget div.card-body');
 
 	$.getJSON( appUrl + '/module/power/get_stats', function( data ) {
 
