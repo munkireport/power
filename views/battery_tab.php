@@ -386,7 +386,7 @@ $(document).on('appReady', function(){
                 $('#power-tab')
                     .append($('<h4>')
                         .append($('<i>')
-                            .addClass('fa fa-bulb'))
+                            .addClass('fa fa-lightbulb-o'))
                         .append(' '+i18n.t('power.power_settings')))
                     .append($('<div style="max-width:500px;">')
                         .append($('<table>')
