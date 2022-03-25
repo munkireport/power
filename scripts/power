@@ -115,17 +115,19 @@ def get_battery_stats():
             plist = plistlib.readPlistFromString(output)
             batteryxml = plist[0]
 
+            cpu_arch = get_cpuarch()
+
             batteryinfo = get_battery_profiler()
             for item in batteryxml:
                 if item == 'DesignCapacity':
                     batteryinfo['DesignCapacity'] = batteryxml[item]
-                elif item == 'MaxCapacity' and platform.processor() == 'i386':
+                elif item == 'MaxCapacity' and (cpu_arch == 'i386' or cpu_arch == 'x86_64'):
                     batteryinfo['MaxCapacity'] = batteryxml[item]
-                elif item == 'AppleRawMaxCapacity' and platform.processor() == 'arm':
+                elif item == 'AppleRawMaxCapacity' and (cpu_arch == 'arm' or cpu_arch == 'arm64'):
                     batteryinfo['MaxCapacity'] = batteryxml[item]
-                elif item == 'CurrentCapacity' and platform.processor() == 'i386':
+                elif item == 'CurrentCapacity' and (cpu_arch == 'i386' or cpu_arch == 'x86_64'):
                     batteryinfo['CurrentCapacity'] = batteryxml[item]
-                elif item == 'AppleRawCurrentCapacity' and platform.processor() == 'arm':
+                elif item == 'AppleRawCurrentCapacity' and (cpu_arch == 'arm' or cpu_arch == 'arm64'):
                     batteryinfo['CurrentCapacity'] = batteryxml[item]
                 elif item == 'Temperature':
                     batteryinfo['Temperature'] = batteryxml[item]
@@ -440,6 +442,14 @@ def getMinorOsVersion():
     os_version_tuple = platform.mac_ver()[0].split('.')
     return int(os_version_tuple[1])
     
+def get_cpuarch():
+    try:
+        arch_output = subprocess.check_output(["/usr/bin/arch", "-arm64", "/usr/bin/uname", "-m"], stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError:
+        arch_output = subprocess.check_output(["/usr/bin/uname", "-m"])
+    return arch_output.decode("utf-8").strip()
+
+
 def main():
 
     """Main"""
