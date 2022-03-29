@@ -79,8 +79,8 @@ def get_battery_profiler():
 
 def get_battery_stats():
     
-    if getMinorOsVersion() < 8:
-        # 10.8 and lower return this value differently
+    if getDarwinVersion() < 12:
+        # 10.8 (Darwin 12) and lower return this value differently
         cmd = ['/usr/sbin/ioreg', '-n', 'AppleSmartBattery', '-r']
         output = subprocess.check_output(cmd)
         try:
@@ -163,11 +163,8 @@ def get_battery_stats():
                         batteryinfo['CellVoltage'] = (', '.join(map(str,(cells))))
 
                     # BatteryData values exist prior to Big Sur, but doesn't include the serial number in the dict. 
-                    # Only run this routine if Big Sur or later.
-                    # Due to rosetta 2 and arch implications with python, evaluation of both major and minor OS version data is necessary.
-                    #  On arm hardware with native python, the output is ['11', '3']
-                    #  On intel or arm hardware with non-native python, the output is ['10', '16']
-                    if getMajorOsVersion() > 10 or getMinorOsVersion() > 15:
+                    # Only run this routine if Big Sur (Darwin 20) or later.
+                    if getDarwinVersion() > 19:
                         # The format for battery manufacturing date changed in Big Sur.
                         # Apple suggested parsing the SerialNumber that contains the manufacture date.
                         # A SN of XXX1234ZZZZZZZZZZ has the manufacturing date as the values of 1234.
@@ -248,7 +245,8 @@ def get_pmset_accps():
         
     accpsinfo = get_battery_stats()
     
-    if getMinorOsVersion() < 8:
+    # macOS 10.8 (Darwin 12)
+    if getDarwinVersion() < 12:
         return accpsinfo
     
     cmd = ['/usr/bin/pmset', '-g', 'accps']
@@ -314,7 +312,8 @@ def get_pmset_therm():
     
     therminfo = get_pmset_sysload()
     
-    if getMinorOsVersion() < 8:
+    # macOS 10.8 (Darwin 12)
+    if getDarwinVersion() < 12:
         return therminfo
     
     cmd = ['/usr/bin/pmset', '-g', 'therm']
@@ -334,7 +333,8 @@ def get_pmset_stats():
     
     statsinfo = get_pmset_therm()
     
-    if getMinorOsVersion() < 8:
+    # macOS 10.8 (Darwin 12)
+    if getDarwinVersion() < 12:
         return statsinfo
     
     cmd = ['/usr/bin/pmset', '-g', 'stats']
@@ -430,15 +430,13 @@ def get_pmset_general():
 def remove_all(substr, str):
     return str.replace(substr, "")
   
-def getMajorOsVersion():
-    """Returns the major OS version."""
-    os_version_tuple = platform.mac_ver()[0].split('.')
-    return int(os_version_tuple[0])
-
-def getMinorOsVersion():
-    """Returns the minor OS version."""
-    os_version_tuple = platform.mac_ver()[0].split('.')
-    return int(os_version_tuple[1])
+def getDarwinVersion():
+    """Returns the Darwin version."""
+    # Catalina -> 10.15.7 -> 19.6.0 -> 19
+    # os_version_tuple = platform.mac_ver()[0].split('.')
+    # return int(os_version_tuple[1])
+    darwin_version_tuple = platform.release().split('.')
+    return int(darwin_version_tuple[0]) 
     
 def main():
 
