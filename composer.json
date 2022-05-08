@@ -1,9 +1,5 @@
 {
     "name": "munkireport/power",
     "description": "Power module for munkireport.",
-    "license": "MIT",
-    "require": {
-        "php":"^7.0"
-    },
-    "version": "6.0.0-beta1"
+    "license": "MIT"
 }
