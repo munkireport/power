@@ -176,7 +176,8 @@
                 // Format percentage
                 var charge=$('td:eq(9)', nRow).text();
                 if (charge != "" && (charge)) {
-                    $('td:eq(9)', nRow).text(charge+'%').addClass('text-right');
+                    var cls = charge > 89 ? 'success' : (charge > 79 ? 'warning' : 'danger');
+                    $('td:eq(9)', nRow).html('<div class="progress"><div class="progress-bar progress-bar-'+cls+'" style="width: '+charge+'%;">'+charge+'%</div></div>');
                 } else {
                     $('td:eq(9)', nRow).text('');
                 }
