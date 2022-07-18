@@ -37,7 +37,7 @@ $(document).on('appReady appUpdate', function(e, lang) {
 		if(data.fair && data.fair != "0"){
 			panel.append(' <a href="'+baseUrl+'#fair" class="btn btn-warning"><span class="bigger-150">'+data.fair+'</span><br>'+i18n.t('power.widget.soon')+'</a>');
 		}
-		if(data.good && good.good != "0"){
+		if(data.good && data.good != "0"){
 			panel.append(' <a href="'+baseUrl+'#good" class="btn btn-success"><span class="bigger-150">'+data.good+'</span><br>'+i18n.t('power.widget.normal')+'</a>');
 		}
 		if(data.missing && data.missing != "0"){
