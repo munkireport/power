@@ -6,7 +6,7 @@ Reports on Power and Battery information
 - Power Supply information (Energy Saving settings)
 - Sleep / Wake settings
 - Other Power related information from pmset
-- Battery information
+- Battery and UPS information
 Note: Battery condition can fluctuate between "Service Battery" and "Normal".
 
 Data can be viewed at
@@ -102,3 +102,10 @@ Table Schema
 * charging_voltage - FLOAT - Adapter voltage in use
 * adapter_manufacturer - VARCHAR(255) - Adapter manufacturer
 * adapter_name - VARCHAR(255) - Adapter name
+* adapter_description - VARCHAR(255) - Adapter description
+* max_charge_current - VARCHAR(255) - Battery maximum charge current
+* max_discharge_current - VARCHAR(255) - Battery maximum discharge current
+* max_pack_voltage - VARCHAR(255) - Battery maximum voltage
+* min_pack_voltage - VARCHAR(255) - Battery minimum voltage
+* max_temperature - VARCHAR(255) - Battery maximum temperature
+* min_temperature - VARCHAR(255) - Battery minimum temperature
