@@ -1,4 +1,5 @@
 #!/usr/local/munkireport/munkireport-python3
+
 # power script by tuxudo for MunkiReport
 
 import subprocess
