@@ -1,4 +1,4 @@
-#!/usr/local/munkireport/munkireport-python2
+#!/usr/local/munkireport/munkireport-python3
 # power script by tuxudo for MunkiReport
 
 import subprocess
@@ -13,7 +13,10 @@ def get_battery_profiler():
     '''Uses system profiler to get power info for this machine.'''
     cmd = ['/usr/sbin/system_profiler', 'SPPowerDataType', '-xml']
     output = subprocess.check_output(cmd)
-    plist = plistlib.readPlistFromString(output)
+    try:
+        plist = plistlib.readPlistFromString(output)
+    except AttributeError as e:
+        plist = plistlib.loads(output)
 
     # system_profiler xml is an array
     sp_dict = plist[0]
@@ -84,7 +87,7 @@ def get_battery_stats():
         cmd = ['/usr/sbin/ioreg', '-n', 'AppleSmartBattery', '-r']
         output = subprocess.check_output(cmd)
         try:
-            for item in output.split("\n"):
+            for item in output.decode("utf-8", errors="ignore").split("\n"):
                 if "DesignCapacity" in item:
                     batteryinfo['DesignCapacity'] = remove_all('      "DesignCapacity" = ', item).strip()
                 elif "Temperature" in item:
@@ -114,10 +117,13 @@ def get_battery_stats():
         cmd = ['/usr/sbin/ioreg', '-a', '-n', 'AppleSmartBattery', '-r']
         output = subprocess.check_output(cmd)
         try:
-            plist = plistlib.readPlistFromString(output)
+            try:
+                plist = plistlib.readPlistFromString(output)
+            except AttributeError as e:
+                plist = plistlib.loads(output)
             batteryxml = plist[0]
 
-            cpu_arch = get_cpuarch()
+            cpu_arch = os.uname()[3].lower()
 
             batteryinfo = get_battery_profiler()
             for item in batteryxml:
@@ -219,7 +225,7 @@ def get_pmset_accps():
     cmd = ['/usr/bin/pmset', '-g', 'accps']
     output = subprocess.check_output(cmd)
 
-    for item in output.split("\n"):
+    for item in output.decode("utf-8", errors="ignore").split("\n"):
         if "UPS" in item:
             item = item.replace("%;", "%;\n")
             item = item.replace(")", ")\n")
@@ -240,7 +246,7 @@ def get_pmset_assertions():
     output = subprocess.check_output(cmd)
     assertionsinfo = get_pmset_accps()
 
-    for item in output.split("\n"):
+    for item in output.decode("utf-8", errors="ignore").split("\n"):
         if "   BackgroundTask                 " in item:
             assertionsinfo['BackgroundTask'] = re.sub('[^0-9]','', item.strip())
         elif "   ApplePushServiceTask           " in item:
@@ -264,7 +270,7 @@ def get_pmset_sysload():
     output = subprocess.check_output(cmd)
     sysloadinfo = get_pmset_assertions()
 
-    for item in output.split("\n"):
+    for item in output.decode("utf-8", errors="ignore").split("\n"):
         if "  combined level = " in item:
             sysloadinfo['combinedlevel'] = remove_all("  combined level = ", item).strip()
         elif "  - user level = " in item:
@@ -285,7 +291,7 @@ def get_pmset_therm():
     
     cmd = ['/usr/bin/pmset', '-g', 'therm']
     output = subprocess.check_output(cmd)
-    output = output.replace("CPU_Scheduler_Limit", "\nCPU_Scheduler_Limit")
+    output = output.decode("utf-8", errors="ignore").replace("CPU_Scheduler_Limit", "\nCPU_Scheduler_Limit")
 
     for item in output.split("\n"):
         if "CPU_Scheduler_Limit" in item:
@@ -307,7 +313,7 @@ def get_pmset_stats():
     cmd = ['/usr/bin/pmset', '-g', 'stats']
     output = subprocess.check_output(cmd)
 
-    for item in output.split("\n"):
+    for item in output.decode("utf-8", errors="ignore").split("\n"):
         if "Sleep Count:" in item:
             statsinfo['SleepCount'] = re.sub('[^0-9]','', item.strip())
         elif "Dark Wake Count:" in item:
@@ -328,7 +334,7 @@ def get_pmset_ups():
     output = subprocess.check_output(cmd)
     upsinfo = get_pmset_sched()
 
-    for item in output.split("\n"):
+    for item in output.decode("utf-8", errors="ignore").split("\n"):
         if "haltlevel" in item:
             upsinfo['haltlevel'] = re.sub('[^0-9]','', item.strip())
         elif "haltafter" in item:
@@ -342,7 +348,7 @@ def get_pmset_general():
     output = subprocess.check_output(cmd)
     powerinfo = get_pmset_ups()
 
-    for item in output.split("\n"):
+    for item in output.decode("utf-8", errors="ignore").split("\n"):
         if " standbydelay" in item:
             powerinfo['standbydelay'] = re.sub('[^0-9]','', item.strip())
         elif " standby" in item:
@@ -463,16 +469,6 @@ def process_manufacture_date(serial):
 
 def remove_all(substr, str):
     return str.replace(substr, "")
-  
-def getMajorOsVersion():
-    """Returns the major OS version."""
-    os_version_tuple = platform.mac_ver()[0].split('.')
-    return int(os_version_tuple[0])
-
-def getMinorOsVersion():
-    """Returns the minor OS version."""
-    os_version_tuple = platform.mac_ver()[0].split('.')
-    return int(os_version_tuple[1])
 
 def getDarwinVersion():
     """Returns the Darwin version."""
@@ -481,14 +477,6 @@ def getDarwinVersion():
     # return int(os_version_tuple[1])
     darwin_version_tuple = platform.release().split('.')
     return int(darwin_version_tuple[0]) 
-    
-def get_cpuarch():
-    try:
-        arch_output = subprocess.check_output(["/usr/bin/arch", "-arm64", "/usr/bin/uname", "-m"], stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError:
-        arch_output = subprocess.check_output(["/usr/bin/uname", "-m"])
-    return arch_output.decode("utf-8").strip()
-
 
 def main():
 
@@ -503,8 +491,11 @@ def main():
     # Write power results to cache file
     cachedir = '%s/cache' % os.path.dirname(os.path.realpath(__file__))
     output_plist = os.path.join(cachedir, 'powerinfo.plist')
-    plistlib.writePlist(info, output_plist)
-#    print plistlib.writePlistToString(info)
+    try:
+        plistlib.writePlist(info, output_plist)
+    except:
+        with open(output_plist, 'wb') as fp:
+            plistlib.dump(info, fp, fmt=plistlib.FMT_XML)
 
 if __name__ == "__main__":
     main()
