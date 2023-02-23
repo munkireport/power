@@ -83,6 +83,12 @@ $(document).on('appReady', function(){
                 } else if(prop == "voltage" && d[prop] != "0.00" && d[prop] != "0"){
                     battery_rows = battery_rows + '<tr><th>'+i18n.t('power.'+prop)+'</th><td>'+d[prop]+" "+i18n.t('power.volts')+'</td></tr>';
 
+                // Format lifetime current
+                } else if(prop == "max_charge_current" || prop == "max_discharge_current"){
+                    battery_rows = battery_rows + '<tr><th>'+i18n.t('power.'+prop)+'</th><td>'+(d[prop]/1000).toFixed(2)+' '+i18n.t('power.amps')+'</td></tr>';
+                } else if(prop == "max_pack_voltage" || prop == "min_pack_voltage"){
+                    battery_rows = battery_rows + '<tr><th>'+i18n.t('power.'+prop)+'</th><td>'+(d[prop]/1000).toFixed(2)+' '+i18n.t('power.volts')+'</td></tr>';
+
                 // Format timeremaining, instanttimetoempty, avgtimetofull, avgtimetoempty
                 } else if((prop == "timeremaining" || prop == "instanttimetoempty" || prop == "avgtimetofull" || prop == "avgtimetoempty") && d[prop] !== -1 && d[prop] !== '0' && d[prop] !== '65535'){
                     battery_rows = battery_rows + '<tr><th>'+i18n.t('power.'+prop)+'</th><td><span title="'+d[prop]+' '+i18n.t('power.minutes')+'">'+moment.duration(parseInt(d[prop]), "minutes").humanize()+'</span></td></tr>';
@@ -130,11 +136,19 @@ $(document).on('appReady', function(){
                     $('#battery-cnt').text(d['current_percent']+"%");
 
                 // Format temperature F/C
-                } else if(prop == "temperature" && d[prop] >= 10 && d['temp_format'] >= "F"){
+                } else if((prop == "temperature" || prop == "max_temperature" || prop == "min_temperature") && d[prop] >= 10 && d['temp_format'] >= "F"){
+                    if (prop == "max_temperature" || prop == "min_temperature"){
+                        // This vaule is stored differently
+                        d[prop] = (d[prop]*100)
+                    }
                     outtemp_c = (d[prop] / 100)+"°C";
                     outtemp_f = (((d[prop] * 9/5) + 3200) / 100).toFixed(2)+"°F";           
                     battery_rows = battery_rows + '<tr><th>'+i18n.t('power.'+prop)+'</th><td><span title="'+outtemp_c+'">'+outtemp_f+'</span></td></tr>';
-                } else if(prop == "temperature" && d[prop] >= 10){
+                } else if((prop == "temperature" || prop == "max_temperature" || prop == "min_temperature") && d[prop] >= 10){
+                    if (prop == "max_temperature" || prop == "min_temperature"){
+                        // This vaule is stored differently
+                        d[prop] = (d[prop]*100)
+                    }
                     outtemp_c = (d[prop] / 100)+"°C";
                     outtemp_f = (((d[prop] * 9/5) + 3200) / 100).toFixed(2)+"°F";
                     battery_rows = battery_rows + '<tr><th>'+i18n.t('power.'+prop)+'</th><td><span title="'+outtemp_f+'">'+outtemp_c+'</span></td></tr>';
@@ -148,11 +162,17 @@ $(document).on('appReady', function(){
                 } else if(prop == "adapter_voltage"){
                     adapter_rows = adapter_rows + '<tr><th>'+i18n.t('power.'+prop)+'</th><td>'+d[prop]+" "+i18n.t('power.volts')+'</td></tr>';
                 // Format adapter amperage
-                } else if(prop == "adapter_voltage"){
+                } else if(prop == "adapter_current"){
                     adapter_rows = adapter_rows + '<tr><th>'+i18n.t('power.'+prop)+'</th><td>'+d[prop]+" "+i18n.t('power.amps')+'</td></tr>';
                 // Format adapter watts
                 } else if(prop == "wattage"){
-                    adapter_rows = adapter_rows + '<tr><th>'+i18n.t('power.'+prop)+'</th><td>'+d[prop]+" "+i18n.t('power.watts')+'</td></tr>';
+                    adapter_rows = adapter_rows + '<tr><th>'+i18n.t('power.adapter_wattage')+'</th><td>'+d[prop]+" "+i18n.t('power.watts')+'</td></tr>';          
+                
+                // Format adapter description
+                } else if(prop == "adapter_description" && d[prop] == "pd charger"){
+                    adapter_rows = adapter_rows + '<tr><th>'+i18n.t('power.'+prop)+'</th><td>'+i18n.t('power.pd_charger')+'</td></tr>';
+                } else if(prop == "adapter_description" && d[prop] !== "pd charger"){
+                    adapter_rows = adapter_rows + '<tr><th>'+i18n.t('power.'+prop)+'</th><td>'+d[prop]+'</td></tr>';
 
                 // Add adapter_rows strings
                 } else if((prop == "adapter_id" || prop == "family_code" || prop == "adapter_serial_number" || prop == "adapter_name" || prop == "adapter_manufacturer")){

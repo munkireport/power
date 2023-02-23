@@ -31,10 +31,16 @@ class Power_controller extends Module_controller
      **/
     public function get_stats()
     {
+        $sql = "SELECT COUNT(CASE WHEN max_percent>89 THEN 1 END) AS success,
+                        COUNT(CASE WHEN max_percent BETWEEN 80 AND 89 THEN 1 END) AS warning,
+                        COUNT(CASE WHEN max_percent BETWEEN 0 AND 79 THEN 1 END) AS danger
+                        FROM power
+                        LEFT JOIN reportdata USING(serial_number)
+                        ".get_machine_group_filter();
+
         $obj = new View();
         $pm = new Power_model;
-        $out[] = $pm->get_stats();
-        $obj->view('json', array('msg' => $out));
+        $obj->view('json', array('msg' => $pm->query($sql)));
     }
 
     /**
@@ -45,8 +51,6 @@ class Power_controller extends Module_controller
      **/
     public function conditions()
     {
-        $obj = new View();
-        $queryobj = new Power_model();
         $sql = "SELECT COUNT(CASE WHEN `condition` = 'Normal' OR `condition` = 'Good' THEN 1 END) AS good,
 						COUNT(CASE WHEN `condition` = 'Service Battery' OR `condition` = 'ServiceBattery' OR `condition` = 'Check Battery' THEN 1 END) AS service,
 						COUNT(CASE WHEN `condition` = 'Replace Soon' OR `condition` = 'ReplaceSoon' OR `condition` = 'Fair' THEN 1 END) AS fair,
@@ -55,6 +59,9 @@ class Power_controller extends Module_controller
                         FROM power
 			 			LEFT JOIN reportdata USING (serial_number)
 			 			".get_machine_group_filter();
+
+        $obj = new View();
+        $queryobj = new Power_model();
         $obj->view('json', array('msg' => current($queryobj->query($sql))));
     }
 
@@ -66,7 +73,7 @@ class Power_controller extends Module_controller
     {
         $serial_number = preg_replace("/[^A-Za-z0-9_\-]]/", '', $serial_number);
 
-        $sql = "SELECT `manufacture_date`, `design_capacity`, `max_capacity`, `max_percent`, `current_capacity`, `current_percent`, `cycle_count`, `designcyclecount`, `condition`, `temperature`, `externalconnected`, `ischarging`, `fullycharged`, `avgtimetofull`, `avgtimetoempty`, `timeremaining`, `instanttimetoempty`, `amperage`, `voltage`, `cellvoltage`, `permanentfailurestatus`, `manufacturer`, `batteryserialnumber`, `packreserve`, `wattage`, `adapter_name`, `adapter_manufacturer`, `adapter_current`, `adapter_voltage`, `adapter_id`, `family_code`, `adapter_serial_number`, `ups_name`, `ups_percent`, `ups_charging_status`, `haltlevel`, `haltafter`, `haltremain`, `active_profile`, `schedule`, `sleep_count`, `dark_wake_count`, `user_wake_count`, `standbydelay`, `standby`, `womp`, `halfdim`, `hibernatefile`, `gpuswitch`, `sms`, `networkoversleep`, `disksleep`, `sleep`, `autopoweroffdelay`, `hibernatemode`, `autopoweroff`, `ttyskeepawake`, `displaysleep`, `acwake`, `lidwake`, `sleep_on_power_button`, `powernap`, `autorestart`, `destroyfvkeyonstandby`, `cpu_scheduler_limit`, `cpu_available_cpus`, `cpu_speed_limit`, `combined_sys_load`, `user_sys_load`, `battery_level`, `thermal_level`, `backgroundtask`, `applepushservicetask`, `userisactive`, `preventuseridledisplaysleep`, `preventsystemsleep`, `externalmedia`, `preventuseridlesystemsleep`, `networkclientactive`, `sleep_prevented_by`
+        $sql = "SELECT `manufacture_date`, `design_capacity`, `max_capacity`, `max_percent`, `current_capacity`, `current_percent`, `cycle_count`, `designcyclecount`, `condition`, `temperature`, `externalconnected`, `ischarging`, `fullycharged`, `avgtimetofull`, `avgtimetoempty`, `timeremaining`, `instanttimetoempty`, `amperage`, `voltage`, `cellvoltage`, `permanentfailurestatus`, `manufacturer`, `batteryserialnumber`, `packreserve`, `max_charge_current`, `max_discharge_current`, `max_pack_voltage`, `min_pack_voltage`, `max_temperature`, `min_temperature`, `adapter_name`, `adapter_description`, `adapter_manufacturer`, `wattage`, `adapter_current`, `adapter_voltage`, `adapter_id`, `family_code`, `adapter_serial_number`, `ups_name`, `ups_percent`, `ups_charging_status`, `haltlevel`, `haltafter`, `haltremain`, `active_profile`, `schedule`, `sleep_count`, `dark_wake_count`, `user_wake_count`, `standbydelay`, `standby`, `womp`, `halfdim`, `hibernatefile`, `gpuswitch`, `sms`, `networkoversleep`, `disksleep`, `sleep`, `autopoweroffdelay`, `hibernatemode`, `autopoweroff`, `ttyskeepawake`, `displaysleep`, `acwake`, `lidwake`, `sleep_on_power_button`, `powernap`, `autorestart`, `destroyfvkeyonstandby`, `cpu_scheduler_limit`, `cpu_available_cpus`, `cpu_speed_limit`, `combined_sys_load`, `user_sys_load`, `battery_level`, `thermal_level`, `backgroundtask`, `applepushservicetask`, `userisactive`, `preventuseridledisplaysleep`, `preventsystemsleep`, `externalmedia`, `preventuseridlesystemsleep`, `networkclientactive`, `sleep_prevented_by`
                         FROM power 
                         WHERE serial_number = '$serial_number'";
 

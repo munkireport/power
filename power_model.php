@@ -92,6 +92,13 @@ class Power_model extends \Model
         $this->rs['charging_voltage'] = 0;
         $this->rs['adapter_manufacturer'] = '';
         $this->rs['adapter_name'] = '';
+        $this->rs['adapter_description'] = '';
+        $this->rs['max_charge_current'] = '';
+        $this->rs['max_discharge_current'] = '';
+        $this->rs['max_pack_voltage'] = '';
+        $this->rs['min_pack_voltage'] = '';
+        $this->rs['max_temperature'] = '';
+        $this->rs['min_temperature'] = '';
 
 
         if ($serial) {
@@ -99,22 +106,6 @@ class Power_model extends \Model
         }
 
         $this->serial = $serial;
-    }
-
-    /**
-     * Get Power statistics
-     *
-     *
-     **/
-    public function get_stats()
-    {
-        $sql = "SELECT COUNT(CASE WHEN max_percent>89 THEN 1 END) AS success,
-                        COUNT(CASE WHEN max_percent BETWEEN 80 AND 89 THEN 1 END) AS warning,
-                        COUNT(CASE WHEN max_percent BETWEEN 0 AND 79 THEN 1 END) AS danger
-                        FROM power
-                        LEFT JOIN reportdata USING(serial_number)
-                        ".get_machine_group_filter();
-        return current($this->query($sql));
     }
 
     // ------------------------------------------------------------------------
@@ -285,11 +276,18 @@ class Power_model extends \Model
             'IsCharging' => 'ischarging',
             'DesignCycleCount9C' => 'designcyclecount',
             'AvgTimeToEmpty' => 'avgtimetoempty',
-            'sleep_prevented_by' => 'sleep_prevented_by'
+            'sleep_prevented_by' => 'sleep_prevented_by',
+            'adapter_description' => 'adapter_description',
+            'max_charge_current' => 'max_charge_current',
+            'max_discharge_current' => 'max_discharge_current',
+            'max_pack_voltage' => 'max_pack_voltage',
+            'min_pack_voltage' => 'min_pack_voltage',
+            'max_temperature' => 'max_temperature',
+            'min_temperature' => 'min_temperature'
         );
 
         // Array of strings
-        $strings =  array('manufacture_date', 'condition', 'hibernatefile', 'adapter_id', 'family_code', 'adapter_serial_number', 'adapter_manufacturer', 'adapter_name', 'combined_sys_load', 'user_sys_load', 'thermal_level', 'battery_level', 'ups_name', 'active_profile', 'ups_charging_status', 'externalconnected', 'cellvoltage', 'manufacturer', 'batteryserialnumber', 'fullycharged', 'ischarging','sleep_prevented_by','schedule');
+        $strings =  array('manufacture_date', 'condition', 'hibernatefile', 'adapter_id', 'family_code', 'adapter_serial_number', 'adapter_manufacturer', 'adapter_name', 'combined_sys_load', 'user_sys_load', 'thermal_level', 'battery_level', 'ups_name', 'active_profile', 'ups_charging_status', 'externalconnected', 'cellvoltage', 'manufacturer', 'batteryserialnumber', 'fullycharged', 'ischarging','sleep_prevented_by','schedule','adapter_description');
 
         // Traverse the xml with translations
         foreach ($translate as $search => $field) {
