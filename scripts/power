@@ -133,7 +133,7 @@ def get_battery_stats():
                     batteryinfo['MaxCapacity'] = batteryxml[item]
                 elif item == 'AppleRawMaxCapacity' and ('arm' in cpu_arch or 'arm64' in cpu_arch):
                     batteryinfo['MaxCapacity'] = batteryxml[item]
-                elif item == 'CurrentCapacity' and (cpu_arch == 'i386' or cpu_arch == 'x86_64'):
+                elif item == 'CurrentCapacity' and ('x86_64' in cpu_arch or 'i386' in cpu_arch):
                     batteryinfo['CurrentCapacity'] = batteryxml[item]
                 elif item == 'AppleRawCurrentCapacity' and ('arm' in cpu_arch or 'arm64' in cpu_arch):
                     batteryinfo['CurrentCapacity'] = batteryxml[item]
