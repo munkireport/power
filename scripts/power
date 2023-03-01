@@ -129,13 +129,13 @@ def get_battery_stats():
             for item in batteryxml:
                 if item == 'DesignCapacity':
                     batteryinfo['DesignCapacity'] = batteryxml[item]
-                elif item == 'MaxCapacity' and (cpu_arch == 'i386' or cpu_arch == 'x86_64'):
+                elif item == 'MaxCapacity' and ('x86_64' in cpu_arch or 'i386' in cpu_arch):
                     batteryinfo['MaxCapacity'] = batteryxml[item]
-                elif item == 'AppleRawMaxCapacity' and (cpu_arch == 'arm' or cpu_arch == 'arm64'):
+                elif item == 'AppleRawMaxCapacity' and ('arm' in cpu_arch or 'arm64' in cpu_arch):
                     batteryinfo['MaxCapacity'] = batteryxml[item]
                 elif item == 'CurrentCapacity' and (cpu_arch == 'i386' or cpu_arch == 'x86_64'):
                     batteryinfo['CurrentCapacity'] = batteryxml[item]
-                elif item == 'AppleRawCurrentCapacity' and (cpu_arch == 'arm' or cpu_arch == 'arm64'):
+                elif item == 'AppleRawCurrentCapacity' and ('arm' in cpu_arch or 'arm64' in cpu_arch):
                     batteryinfo['CurrentCapacity'] = batteryxml[item]
                 elif item == 'Temperature':
                     batteryinfo['Temperature'] = batteryxml[item]
