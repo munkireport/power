@@ -368,6 +368,8 @@ class Power_model extends \Model
         $this->timestamp = time();
 
         // Fix condition
-        $this->condition = str_replace(array('Normal','ServiceBattery','Service Battery','ReplaceSoon','Replace Soon','ReplaceNow','Replace Now'),array('Good','Service','Service','Fair','Fair','Poor','Poor'), $this->condition);
+        if(!is_null($this->condition)){
+            $this->condition = str_replace(array('Normal','ServiceBattery','Service Battery','ReplaceSoon','Replace Soon','ReplaceNow','Replace Now'),array('Good','Service','Service','Fair','Fair','Poor','Poor'), $this->condition);
+        }
     }
 }
