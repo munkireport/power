@@ -1,12 +1,12 @@
 <div class="col-lg-4 col-md-6">
-    <div class="panel panel-default" id="battery-condition-widget">
-            <div class="panel-heading" data-container="body" data-i18n="[title]power.widget.tooltip">
-                <h3 class="panel-title"><i class="fa fa-flash"></i>
+    <div class="card" id="battery-condition-widget">
+            <div class="card-header" data-container="body" data-i18n="[title]power.widget.tooltip">
+                <i class="fa fa-flash"></i>
                     <span data-i18n="power.widget.title"></span>
-                    <list-link data-url="/show/listing/power/batteries"></list-link>
-                </h3>
+                    <a href="/show/listing/power/batteries" class="pull-right"><i class="fa fa-list"></i></a>
+                
 			</div>
-		<div class="panel-body text-center"></div>
+		<div class="card-body text-center"></div>
     </div><!-- /panel -->
 </div><!-- /col -->
 
@@ -23,7 +23,7 @@ $(document).on('appReady appUpdate', function(e, lang) {
     		return;
     	}
 
-		var panel = $('#battery-condition-widget div.panel-body'),
+		var panel = $('#battery-condition-widget div.card-body'),
 			baseUrl = appUrl + '/show/listing/power/batteries';
 		panel.empty();
 
