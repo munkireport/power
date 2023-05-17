@@ -1,13 +1,12 @@
 <div class="col-lg-4 col-md-6">
-    <div class="card" id="battery-condition-widget">
-            <div class="card-header" data-container="body" data-i18n="[title]power.widget.tooltip">
-                <i class="fa fa-flash"></i>
-                    <span data-i18n="power.widget.title"></span>
-                    <a href="/show/listing/power/batteries" class="pull-right"><i class="fa fa-list"></i></a>
-                
+	<div class="card" id="battery-condition-widget">
+			<div class="card-header" data-container="body" data-i18n="[title]power.widget.tooltip">
+				<i class="fa fa-flash"></i>
+				<span data-i18n="power.widget.title"></span>
+				<a href="/show/listing/power/batteries" class="pull-right"><i class="fa fa-list"></i></a>
 			</div>
 		<div class="card-body text-center"></div>
-    </div><!-- /panel -->
+	</div><!-- /card -->
 </div><!-- /col -->
 
 <script>
@@ -19,9 +18,9 @@ $(document).on('appReady appUpdate', function(e, lang) {
 		$('#power-nodata').removeClass('hide');
 
 		if(data.error){
-    		//alert(data.error);
-    		return;
-    	}
+			//alert(data.error);
+			return;
+		}
 
 		var panel = $('#battery-condition-widget div.card-body'),
 			baseUrl = appUrl + '/show/listing/power/batteries';
@@ -43,6 +42,6 @@ $(document).on('appReady appUpdate', function(e, lang) {
 		if(data.missing && data.missing != "0"){
 			panel.append(' <a href="'+baseUrl+'#no battery" class="btn btn-info"><span class="bigger-150">'+data.missing+'</span><br>'+i18n.t('power.widget.nobattery')+'</a>');
 		}
-    });
+	});
 });
 </script>

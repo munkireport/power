@@ -1,4 +1,3 @@
-
 <div id="power"></div>
 <h2 data-i18n="power.power"></h2>
 

@@ -5,15 +5,10 @@
 )); ?>
 
 <div class="container">
-
   <div class="row">
-
     <?php $widget->view($this, 'power_battery_health'); ?>
-
     <?php $widget->view($this, 'power_battery_condition'); ?>
-
   </div> <!-- /row -->
-
 </div>  <!-- /container -->
 
 <script src="<?php echo conf('subdirectory'); ?>assets/js/munkireport.autoupdate.js"></script>

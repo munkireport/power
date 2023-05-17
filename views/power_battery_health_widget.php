@@ -1,20 +1,13 @@
 <div class="col-lg-4 col-md-6">
-
 	<div class="card" id="power-battery-health-widget">
-
 		<div class="card-header" data-container="body" data-i18n="[title]power.widget.health.tooltip">
-
 			<i class="fa fa-medkit"></i>
-			    <span data-i18n="power.widget.health.title"></span> 
-			    <a href="/show/listing/power/batteries" class="pull-right"><i class="fa fa-list"></i></a>
-			%
-
+			<span data-i18n="power.widget.health.title"></span> 
+			<a href="/show/listing/power/batteries" class="pull-right"><i class="fa fa-list"></i></a>
+			% <!-- The percent sign is supposed to be here -->
 		</div>
-
 		<div class="card-body text-center"></div>
-
-	</div><!-- /panel -->
-
+	</div><!-- /card -->
 </div><!-- /col -->
 
 <script>
