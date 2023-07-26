@@ -4,8 +4,8 @@
 	)
 )); ?>
 
-<div class="container">
-  <div class="row">
+<div class="container-fluid">
+  <div class="row pt-4">
     <?php $widget->view($this, 'power_battery_health'); ?>
     <?php $widget->view($this, 'power_battery_condition'); ?>
   </div> <!-- /row -->

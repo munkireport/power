@@ -142,27 +142,27 @@
                 var max_percent=$('td:eq(6)', nRow).text();
                 if (max_percent != "" && (max_percent)) {
                     var cls = max_percent > 89 ? 'success' : (max_percent > 79 ? 'warning' : 'danger');
-                    $('td:eq(6)', nRow).html('<div class="progress"><div class="progress-bar progress-bar-'+cls+'" style="width: '+max_percent+'%;">'+max_percent+'%</div></div>');
+                    $('td:eq(6)', nRow).html('<div class="progress"><div class="progress-bar bg-'+cls+'" style="width: '+max_percent+'%;">'+max_percent+'%</div></div>');
                 } else {
                     $('td:eq(6)', nRow).text('');
                 }
 
                 // Format battery condition
                 var status=$('td:eq(7)', nRow).text();
-                status = status == 'Good' ? '<span class="label label-success">'+i18n.t('power.widget.normal')+'</span>' :
-                status = status == 'Normal' ? '<span class="label label-success">'+i18n.t('power.widget.normal')+'</span>' :
-                status = status == 'Service Battery' ? '<span class="label label-warning">'+i18n.t('power.widget.service')+'</span>' :
-                status = status == 'ServiceBattery' ? '<span class="label label-warning">'+i18n.t('power.widget.service')+'</span>' :
-                status = status == 'Check Battery' ? '<span class="label label-warning">'+i18n.t('power.widget.check')+'</span>' :
-                status = status == 'CheckBattery' ? '<span class="label label-warning">'+i18n.t('power.widget.check')+'</span>' :
-                status = status == 'Replace Soon' ? '<span class="label label-warning">'+i18n.t('power.widget.soon')+'</span>' :
-                status = status == 'ReplaceSoon' ? '<span class="label label-warning">'+i18n.t('power.widget.soon')+'</span>' :
-                status = status == 'Fair' ? '<span class="label label-warning">'+i18n.t('power.widget.soon')+'</span>' :
-                status = status == 'Replace Now' ? '<span class="label label-danger">'+i18n.t('power.widget.now')+'</span>' :
-                status = status == 'ReplaceNow' ? '<span class="label label-danger">'+i18n.t('power.widget.now')+'</span>' :
-                status = status == 'Poor' ? '<span class="label label-danger">'+i18n.t('power.widget.now')+'</span>' :
-                status = status == '' ? '<span class="label label-danger">'+i18n.t('power.widget.nobattery')+'</span>' :
-                (status === 'No Battery' ? '<span class="label label-danger">'+i18n.t('power.widget.nobattery')+'</span>' : '')
+                status = status == 'Good' ? '<span class="badge badge-success">'+i18n.t('power.widget.normal')+'</span>' :
+                status = status == 'Normal' ? '<span class="badge badge-success">'+i18n.t('power.widget.normal')+'</span>' :
+                status = status == 'Service Battery' ? '<span class="badge badge-warning">'+i18n.t('power.widget.service')+'</span>' :
+                status = status == 'ServiceBattery' ? '<span class="badge badge-warning">'+i18n.t('power.widget.service')+'</span>' :
+                status = status == 'Check Battery' ? '<span class="badge badge-warning">'+i18n.t('power.widget.check')+'</span>' :
+                status = status == 'CheckBattery' ? '<span class="badge badge-warning">'+i18n.t('power.widget.check')+'</span>' :
+                status = status == 'Replace Soon' ? '<span class="badge badge-warning">'+i18n.t('power.widget.soon')+'</span>' :
+                status = status == 'ReplaceSoon' ? '<span class="badge badge-warning">'+i18n.t('power.widget.soon')+'</span>' :
+                status = status == 'Fair' ? '<span class="badge badge-warning">'+i18n.t('power.widget.soon')+'</span>' :
+                status = status == 'Replace Now' ? '<span class="badge badge-danger">'+i18n.t('power.widget.now')+'</span>' :
+                status = status == 'ReplaceNow' ? '<span class="badge badge-danger">'+i18n.t('power.widget.now')+'</span>' :
+                status = status == 'Poor' ? '<span class="badge badge-danger">'+i18n.t('power.widget.now')+'</span>' :
+                status = status == '' ? '<span class="badge badge-danger">'+i18n.t('power.widget.nobattery')+'</span>' :
+                (status === 'No Battery' ? '<span class="badge badge-danger">'+i18n.t('power.widget.nobattery')+'</span>' : '')
                 $('td:eq(7)', nRow).html(status)
 
                 // Format current charge
@@ -177,7 +177,7 @@
                 var charge=$('td:eq(9)', nRow).text();
                 if (charge != "" && (charge)) {
                     var cls = charge > 89 ? 'success' : (charge > 79 ? 'warning' : 'danger');
-                    $('td:eq(9)', nRow).html('<div class="progress"><div class="progress-bar progress-bar-'+cls+'" style="width: '+charge+'%;">'+charge+'%</div></div>');
+                    $('td:eq(9)', nRow).html('<div class="progress"><div class="progress-bar bg-'+cls+'" style="width: '+charge+'%;">'+charge+'%</div></div>');
                 } else {
                     $('td:eq(9)', nRow).text('');
                 }
