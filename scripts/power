@@ -37,7 +37,7 @@ def get_battery_profiler():
             elif item == 'sppower_ac_charger_watts':
                 batteryprofiler['attage'] = obj[item] # This is not a typo
             elif item == 'sppower_ac_charger_family':
-                batteryprofiler['FamilyCode'] = obj[item]
+                batteryprofiler['FamilyCode'] = obj[item]                
             elif item == 'sppower_ac_charger_serial_number':
                 batteryprofiler['SerialNumber'] = obj[item]
             elif item == 'sppower_ac_charger_name':
@@ -140,15 +140,15 @@ def get_battery_stats():
                     batteryinfo['CurrentCapacity'] = batteryxml[item]
                 elif item == 'Temperature':
                     batteryinfo['Temperature'] = batteryxml[item]
-                elif item == 'TimeRemaining':
+                elif item == 'TimeRemaining' and batteryxml[item] != 0:
                     batteryinfo['TimeRemaining'] = batteryxml[item]
-                elif item == 'InstantTimeToEmpty':
+                elif item == 'InstantTimeToEmpty' and batteryxml[item] != 0:
                     batteryinfo['InstantTimeToEmpty'] = batteryxml[item]
                 elif item == 'PackReserve':
                     batteryinfo['PackReserve'] = batteryxml[item]
-                elif item == 'AvgTimeToFull':
+                elif item == 'AvgTimeToFull' and batteryxml[item] != 65535:
                     batteryinfo['AvgTimeToFull'] = batteryxml[item]
-                elif item == 'AvgTimeToEmpty':
+                elif item == 'AvgTimeToEmpty' and batteryxml[item] != 65535:
                     batteryinfo['AvgTimeToEmpty'] = batteryxml[item]
                 elif item == 'DesignCycleCount9C':
                     batteryinfo['DesignCycleCount9C'] = batteryxml[item]
@@ -214,15 +214,15 @@ def get_battery_stats():
             return batteryinfo
         except:
             return get_battery_profiler()
-    
+
 def get_pmset_accps():
-        
+
     accpsinfo = get_battery_stats()
-    
+
     # macOS 10.8 (Darwin 12)
     if getDarwinVersion() < 12:
         return accpsinfo
-    
+
     cmd = ['/usr/bin/pmset', '-g', 'accps']
     output = subprocess.check_output(cmd)
 
@@ -283,13 +283,13 @@ def get_pmset_sysload():
     return sysloadinfo
 
 def get_pmset_therm():
-    
+
     therminfo = get_pmset_sysload()
-    
+
     # macOS 10.8 (Darwin 12)
     if getDarwinVersion() < 12:
         return therminfo
-    
+
     cmd = ['/usr/bin/pmset', '-g', 'therm']
     output = subprocess.check_output(cmd)
     output = output.decode("utf-8", errors="ignore").replace("CPU_Scheduler_Limit", "\nCPU_Scheduler_Limit")
@@ -304,13 +304,13 @@ def get_pmset_therm():
     return therminfo
 
 def get_pmset_stats():
-    
+
     statsinfo = get_pmset_therm()
-    
+
     # macOS 10.8 (Darwin 12)
     if getDarwinVersion() < 12:
         return statsinfo
-    
+
     cmd = ['/usr/bin/pmset', '-g', 'stats']
     output = subprocess.check_output(cmd)
 
@@ -343,7 +343,31 @@ def get_pmset_ups():
         elif "haltremain" in item:
             upsinfo['haltremain'] = re.sub('[^0-9]','', item.strip())
     return upsinfo
-            
+
+def get_pmset_adapter(info):
+    cmd = ['/usr/bin/pmset', '-g', 'adapter']
+    output = subprocess.check_output(cmd)
+
+    for item in output.decode("utf-8", errors="ignore").split("\n"):
+        if "Voltage" in item:
+            info['adapter_voltage'] = format((float(re.sub('[^0-9]','', item))/1000),'.3f')
+        elif "Current" in item:
+            info['adapter_current'] = format((float(re.sub('[^0-9]','', item))/1000),'.3f')
+        elif "Manufacturer" in item:
+            info['adapter_manufacturer'] = remove_all(' Manufacturer = ', item).strip()
+        elif "Wattage" in item:
+            info['attage'] = re.sub('[^0-9]','', item) # not a typo
+        elif "Family Code" in item:
+            info['FamilyCode'] = remove_all(' Family Code = ', item).strip()
+        elif "Serial String" in item:
+            info['SerialNumber'] = remove_all(' Serial String = ', item).strip()
+        elif "AdapterID" in item:
+            info['AdapterID'] = remove_all(' AdapterID = ', item).strip()
+        elif "Adapter Name" in item:
+            info['adapter_name'] = remove_all(' Adapter Name = ', item).strip()
+
+    return info
+
 def get_pmset_general():
     cmd = ['/usr/bin/pmset', '-g']
     output = subprocess.check_output(cmd)
@@ -509,6 +533,10 @@ def main():
 
     # Get results
     info = get_pmset_general()
+
+    # Check if we have all the needed power adapter infos
+    if 'adapter_voltage' not in info or 'adapter_current' not in info or 'adapter_description' not in info or 'adapter_manufacturer' not in info or 'adapter_name' not in info or 'attage' not in info or 'FamilyCode' not in info or 'SerialNumber' not in info or 'AdapterID' not in info:
+        info = get_pmset_adapter(info)
 
     # Write power results to cache file
     cachedir = '%s/cache' % os.path.dirname(os.path.realpath(__file__))

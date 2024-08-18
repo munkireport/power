@@ -43,15 +43,15 @@
 
 <script type="text/javascript">
 
-	$(document).on('appUpdate', function(e){
+    $(document).on('appUpdate', function(e){
 
-		var oTable = $('.table').DataTable();
-		oTable.ajax.reload();
-		return;
+        var oTable = $('.table').DataTable();
+        oTable.ajax.reload();
+        return;
 
-	});
+    });
 
-	$(document).on('appReady', function(e, lang) {
+    $(document).on('appReady', function(e, lang) {
 
         // Get modifiers from data attribute
         var mySort = [], // Initial sort
@@ -75,7 +75,7 @@
             col++
         });
 
-	    oTable = $('.table').dataTable( {
+        oTable = $('.table').dataTable( {
             ajax: {
                 url: appUrl + '/datatables/data',
                 type: "POST",
@@ -106,7 +106,7 @@
             buttons: mr.dt.buttons,
             order: mySort,
             columnDefs: columnDefs,
-		    createdRow: function( nRow, aData, iDataIndex ) {
+            createdRow: function( nRow, aData, iDataIndex ) {
                 // Update name in first column to link
                 var name=$('td:eq(0)', nRow).text();
                 if(name == ''){name = "No Name"};
@@ -243,14 +243,14 @@
                 $('td:eq(14)', nRow).html('<span title="'+moment(date).format('llll')+'">'+moment(date).fromNow()+'</span>');
             }
         });
-        
-	    // Use hash as search query
-	    if(window.location.hash.substring(1))
-	    {
-		    oTable.fnFilter( decodeURIComponent(window.location.hash.substring(1)) );
-	    }
 
-	} );
+        // Use hash as search query
+        if(window.location.hash.substring(1))
+        {
+            oTable.fnFilter( decodeURIComponent(window.location.hash.substring(1)) );
+        }
+
+    } );
 </script>
 
 <?php $this->view('partials/foot')?>

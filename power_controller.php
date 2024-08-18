@@ -7,7 +7,6 @@
  **/
 class Power_controller extends Module_controller
 {
-    
     /*** Protect methods with auth! ****/
     public function __construct()
     {
@@ -52,17 +51,41 @@ class Power_controller extends Module_controller
     public function conditions()
     {
         $sql = "SELECT COUNT(CASE WHEN `condition` = 'Normal' OR `condition` = 'Good' THEN 1 END) AS good,
-						COUNT(CASE WHEN `condition` = 'Service Battery' OR `condition` = 'ServiceBattery' OR `condition` = 'Check Battery' THEN 1 END) AS service,
-						COUNT(CASE WHEN `condition` = 'Replace Soon' OR `condition` = 'ReplaceSoon' OR `condition` = 'Fair' THEN 1 END) AS fair,
-						COUNT(CASE WHEN `condition` = 'Replace Now' OR `condition` = 'ReplaceNow' OR `condition` = 'Poor' THEN 1 END) AS poor,
+                        COUNT(CASE WHEN `condition` = 'Service Battery' OR `condition` = 'ServiceBattery' OR `condition` = 'Check Battery' THEN 1 END) AS service,
+                        COUNT(CASE WHEN `condition` = 'Replace Soon' OR `condition` = 'ReplaceSoon' OR `condition` = 'Fair' THEN 1 END) AS fair,
+                        COUNT(CASE WHEN `condition` = 'Replace Now' OR `condition` = 'ReplaceNow' OR `condition` = 'Poor' THEN 1 END) AS poor,
                         COUNT(CASE WHEN `condition` = 'No Battery' OR `condition` = 'NoBattery' THEN 1 END) AS missing
                         FROM power
-			 			LEFT JOIN reportdata USING (serial_number)
-			 			".get_machine_group_filter();
+                        LEFT JOIN reportdata USING (serial_number)
+                        ".get_machine_group_filter();
 
         $obj = new View();
         $queryobj = new Power_model();
         $obj->view('json', array('msg' => current($queryobj->query($sql))));
+    }
+
+    /**
+     * Get data for wattage widget
+     *
+     * @return void
+     * @author tuxudo
+     **/
+    public function get_wattage()
+    {
+        $sql = "SELECT COUNT(CASE WHEN wattage <> '' AND wattage IS NOT NULL THEN 1 END) AS count, wattage
+                FROM power
+                LEFT JOIN reportdata USING (serial_number)
+                ".get_machine_group_filter()."
+                AND wattage <> '' AND wattage IS NOT NULL
+                GROUP BY wattage
+                ORDER BY count DESC";
+
+        $out = [];
+        $queryobj = new Power_model();
+        foreach($queryobj->query($sql) as $item){
+                $out[] = ['count' => $item->count, 'wattage' => $item->wattage." Watts"];
+        }
+        jsonView($out);
     }
 
     /**
@@ -75,7 +98,9 @@ class Power_controller extends Module_controller
 
         $sql = "SELECT `manufacture_date`, `design_capacity`, `max_capacity`, `max_percent`, `current_capacity`, `current_percent`, `cycle_count`, `designcyclecount`, `condition`, `temperature`, `externalconnected`, `ischarging`, `fullycharged`, `avgtimetofull`, `avgtimetoempty`, `timeremaining`, `instanttimetoempty`, `amperage`, `voltage`, `cellvoltage`, `permanentfailurestatus`, `manufacturer`, `batteryserialnumber`, `packreserve`, `max_charge_current`, `max_discharge_current`, `max_pack_voltage`, `min_pack_voltage`, `max_temperature`, `min_temperature`, `adapter_name`, `adapter_description`, `adapter_manufacturer`, `wattage`, `adapter_current`, `adapter_voltage`, `adapter_id`, `family_code`, `adapter_serial_number`, `ups_name`, `ups_percent`, `ups_charging_status`, `haltlevel`, `haltafter`, `haltremain`, `active_profile`, `schedule`, `sleep_count`, `dark_wake_count`, `user_wake_count`, `standbydelay`, `standby`, `womp`, `halfdim`, `hibernatefile`, `gpuswitch`, `sms`, `networkoversleep`, `disksleep`, `sleep`, `autopoweroffdelay`, `hibernatemode`, `autopoweroff`, `ttyskeepawake`, `displaysleep`, `acwake`, `lidwake`, `sleep_on_power_button`, `powernap`, `autorestart`, `destroyfvkeyonstandby`, `cpu_scheduler_limit`, `cpu_available_cpus`, `cpu_speed_limit`, `combined_sys_load`, `user_sys_load`, `battery_level`, `thermal_level`, `backgroundtask`, `applepushservicetask`, `userisactive`, `preventuseridledisplaysleep`, `preventsystemsleep`, `externalmedia`, `preventuseridlesystemsleep`, `networkclientactive`, `sleep_prevented_by`
                         FROM power 
-                        WHERE serial_number = '$serial_number'";
+                        LEFT JOIN reportdata USING (serial_number)
+                        ".get_machine_group_filter()."
+                        AND serial_number = '$serial_number'";
 
         $queryobj = new Power_model;
         $power_data = $queryobj->query($sql)[0];

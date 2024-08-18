@@ -1,0 +1,26 @@
+client_tabs:
+    battery-tab:
+        view: battery_tab
+        i18n: power.battery
+        badge: battery-cnt
+    power-tab:
+        view: power_tab
+        i18n: power.power
+listings:
+    batteries:
+        view: batteries_listing
+        i18n: power.batteries
+    power:
+        view: power_listing
+        i18n: power.power
+widgets:
+    power_adapter_wattage:
+        view: power_adapter_wattage_widget
+    power_battery_condition:
+        view: power_battery_condition_widget
+    power_battery_health:
+        view: power_battery_health_widget
+reports:
+    power:
+        view: power
+        i18n: power.report

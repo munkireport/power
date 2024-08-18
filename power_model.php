@@ -297,7 +297,7 @@ class Power_model extends \Model
                 $this->$field = null;
 
             // Else if is not a string and is numeric, save the value
-            } else if ( ! in_array($field, $strings) && is_numeric($plist[$search])) {                 
+            } else if ( ! in_array($field, $strings) && is_numeric($plist[$search])) {
                 $this->$field = $plist[$search];
 
             // Else if a string, save the value

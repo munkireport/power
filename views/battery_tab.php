@@ -6,7 +6,7 @@
 
 <script>
 $(document).on('appReady', function(){
-	$.getJSON(appUrl + '/module/power/get_data/' + serialNumber, function(d){
+    $.getJSON(appUrl + '/module/power/get_data/' + serialNumber, function(d){
         if( ! d ){
             // Change loading messages to no data
             $('#battery-msg').text(i18n.t('no_data'));
@@ -57,7 +57,7 @@ $(document).on('appReady', function(){
                     $('#battery-condition').html(d[prop])
 
                     battery_rows = battery_rows + '<tr><th>'+i18n.t('power.'+prop)+'</th><td>'+d[prop]+'</td></tr>';
-                
+
                 } else if (prop == 'condition' && d[prop] == ''){
                     // Update the tab battery percent
                     $('#battery-cnt').hide()
@@ -90,10 +90,10 @@ $(document).on('appReady', function(){
                     battery_rows = battery_rows + '<tr><th>'+i18n.t('power.'+prop)+'</th><td>'+(d[prop]/1000).toFixed(2)+' '+i18n.t('power.volts')+'</td></tr>';
 
                 // Format timeremaining, instanttimetoempty, avgtimetofull, avgtimetoempty
-                } else if((prop == "timeremaining" || prop == "instanttimetoempty" || prop == "avgtimetofull" || prop == "avgtimetoempty") && d[prop] !== -1 && d[prop] !== '0' && d[prop] !== '65535'){
+                } else if((prop == "timeremaining" || prop == "instanttimetoempty" || prop == "avgtimetofull" || prop == "avgtimetoempty") && d[prop] !== -1 && d[prop] !== '0' && d[prop] !== 0 && d[prop] !== '65535' && d[prop] !== 65535){
                     battery_rows = battery_rows + '<tr><th>'+i18n.t('power.'+prop)+'</th><td><span title="'+d[prop]+' '+i18n.t('power.minutes')+'">'+moment.duration(parseInt(d[prop]), "minutes").humanize()+'</span></td></tr>';
 
-                // Format amperage and alculate charge/discharge watts
+                // Format amperage and calculate charge/discharge watts
                 } else if(prop == 'amperage' && d['voltage']){
 
                     var batt_watts = (d['amperage']*d['voltage']).toFixed(2);
@@ -343,7 +343,7 @@ $(document).on('appReady', function(){
                                 .append(battery_rows))));
             }
             // Only show and sort battery table if data exists
-            else if (battery_rows !== "" && d.condition.includes("No Battery")){
+            else if (battery_rows !== "" && d.condition != null && d.condition.includes("No Battery")){
                 $('#battery-table')
                     .append($('<h4>')
                         .append($('<i>')
@@ -357,11 +357,16 @@ $(document).on('appReady', function(){
             }
             // Show that we have no battery data
             else {
+                console.log("her33e")
+                $('#battery-cnt').hide()
                 $('#battery-msg').text(i18n.t('no_data'));
             }
 
             // Only show and sort adapter table if data exists
             if ( adapter_rows !== "" && d.wattage){
+                // Hide no data message on battery tab, for Apple Silicon iMacs
+                $('#battery-msg').text('');
+
                 $('#battery-table')
                     .append($('<h4>')
                         .append($('<i>')

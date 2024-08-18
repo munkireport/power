@@ -13,16 +13,16 @@ if [ $? = 0 ]; then
 
 	# Set preference to include this file in the preflight check
 	setreportpref "power" "${CACHEPATH}powerinfo.plist"
-    
-    # Delete the older style cached file
-    if [[ -f "${MUNKIPATH}preflight.d/cache/powerinfo.txt" ]] ; then
-         rm -f "${MUNKIPATH}preflight.d/cache/powerinfo.txt"
-    fi
-    
-    # Delete the older power.sh file
-    if [[ -f "${MUNKIPATH}preflight.d/power.sh" ]] ; then
-         rm -f "${MUNKIPATH}preflight.d/power.sh"
-    fi
+
+	# Delete the older style cached file
+	if [[ -f "${MUNKIPATH}preflight.d/cache/powerinfo.txt" ]] ; then
+		rm -f "${MUNKIPATH}preflight.d/cache/powerinfo.txt"
+	fi
+
+	# Delete the older power.sh file
+	if [[ -f "${MUNKIPATH}preflight.d/power.sh" ]] ; then
+		rm -f "${MUNKIPATH}preflight.d/power.sh"
+	fi
 
 else
 	echo "Failed to download all required components!"
