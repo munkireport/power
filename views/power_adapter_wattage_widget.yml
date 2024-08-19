@@ -3,7 +3,7 @@ widget_id: power-adapter_wattage-widget
 api_url: /module/power/get_wattage
 i18n_title: power.adapter_wattage
 icon: fa-plug
-listing_link: /show/listing/power/battery
+listing_link: /show/listing/power/batteries
 search_key: wattage
 badge: count
 i18n_empty_result: no_data

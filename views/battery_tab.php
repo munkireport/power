@@ -330,7 +330,7 @@ $(document).on('appReady', function(){
                                 .append(battery_rows))));
             }
             // Only show and sort battery table if data exists
-            else if (battery_rows !== "" && d.condition != "" && d.current_percent >= 25){
+            else if (battery_rows !== "" && d.condition != "" && d.current_percent < 50){
                 $('#battery-table')
                     .append($('<h4>')
                         .append($('<i>')
@@ -357,7 +357,6 @@ $(document).on('appReady', function(){
             }
             // Show that we have no battery data
             else {
-                console.log("her33e")
                 $('#battery-cnt').hide()
                 $('#battery-msg').text(i18n.t('no_data'));
             }
