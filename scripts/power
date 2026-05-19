@@ -418,7 +418,7 @@ def get_pmset_general():
             powerinfo['lessbright'] = re.sub('[^0-9]','', item.strip())
         elif " sleep" in item:
             try:
-                powerinfo['sleep_prevented_by'] = re.search('\(.*\)', item).group(0).replace("(sleep prevented by ", "").replace(")", "").strip()
+                powerinfo['sleep_prevented_by'] = re.search('\\(.*\\)', item).group(0).replace("(sleep prevented by ", "").replace(")", "").strip()
             except:
                 powerinfo['sleep_prevented_by_error'] = ""
             powerinfo['sleep'] = (re.sub('[^0-9]','', re.sub(r'\(.+?\)', '', item))).strip()
